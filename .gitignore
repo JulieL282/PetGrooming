@@ -1,0 +1,15 @@
+﻿# Ignore Visual Studio cache
+.vs/
+
+# Ignore build output
+bin/
+obj/
+
+# Ignore user-specific VS settings
+*.user
+*.suo
+
+# Ignore temporary files
+*.cache
+*.log
+*.db-journal
