@@ -23,7 +23,7 @@ namespace PetGrooming.DAL
             ";
             cmd.Parameters.AddWithValue("@cid", a.CustomerId);
             cmd.Parameters.AddWithValue("@pid", a.PetId);
-            cmd.Parameters.AddWithValue("@appdate", a.AppointmentDate);
+            cmd.Parameters.AddWithValue("@appdate", a.AppointmentDate.ToString("s")); // Make it Sortable
             cmd.Parameters.AddWithValue("@service", a.Service);
             cmd.ExecuteNonQuery();
         }

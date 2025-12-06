@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
+using Microsoft.Data.Sqlite; // install SQLite
 using System.IO;
 
 // Create Database and Tables
@@ -20,7 +20,7 @@ namespace PetGrooming.DAL
         {
             if (!File.Exists(DbFile))
             {
-                SqliteConnection.CreateFile(DbFile);
+                File.Create(DbFile).Close();
             }
 
             //close automatically

@@ -9,7 +9,7 @@ namespace PetGrooming.Utils
 {
     public static class Searching
     {
-        public static Appointment? BinarySearchById(List<Appointment> appList, int appointmentId)
+        public static Appointment? BinarySearchByAppointmentId(List<Appointment> appList, int appointmentId)
         {
             int left = 0;
             int right = appList.Count - 1;
@@ -32,6 +32,48 @@ namespace PetGrooming.Utils
                 }
             }
             return null; // Not found
+        }
+
+        public static List<Appointment> SearchByCustomerId(List<Appointment> appList, int customerId)
+        {
+            List<Appointment> results = new List<Appointment>();
+
+            foreach (var appointment in appList)
+            {
+                if (appointment.CustomerId == customerId)
+                {
+                    results.Add(appointment);
+                }
+            }
+            return results;
+        }
+
+        public static List<Appointment> SearchByPetId(List<Appointment> appList, int petId)
+        {
+            List<Appointment> results = new List<Appointment>();
+
+            foreach (var appointment in appList)
+            {
+                if (appointment.PetId == petId)
+                {
+                    results.Add(appointment);
+                }
+            }
+            return results;
+        }
+
+        public static List<Appointment> SearchByDate(List<Appointment> appList, DateTime date)
+        {
+            List<Appointment> results = new List<Appointment>();
+
+            foreach (var appointment in appList)
+            {
+                if (appointment.AppointmentDate.Date == date.Date)
+                {
+                    results.Add(appointment);
+                }
+            }
+            return results;
         }
     }
 }

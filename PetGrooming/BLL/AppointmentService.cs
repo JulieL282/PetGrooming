@@ -21,17 +21,44 @@ namespace PetGrooming.BLL
         public Appointment? Find(int appointmentId) => _appDal.GetById(appointmentId);
 
 
-        // Sorting - Bubble Sort
-        public List<Appointment> SortByDate(List<Appointment> appList)
+        // Sorting with copy
+        public List<Appointment> SortByDate()
         {
-            return Sorting.BubbleSortByDate(appList);
+            var copy = new List<Appointment>(_appDal.GetAll());
+            return Sorting.BubbleSortByDate(copy);
         }
 
-        // Searching - Binary Search
-        public Appointment? SearchById(List<Appointment> appList, int appointmentId)
+        public List<Appointment> SortByAppointmentId()
         {
-            return Searching.BinarySearchById(appList, appointmentId);
+            var copy = new List<Appointment>(_appDal.GetAll());
+            return Sorting.BubbleSortByAppointmentId(copy);
         }
 
+        // Searching
+        public Appointment? SearchByAppointmentId(int appointmentId)
+        {
+            // Make a copy and sort it first
+            var copy = new List<Appointment>(_appDal.GetAll());
+            Sorting.BubbleSortByDate(copy);
+            return Searching.BinarySearchByAppointmentId(copy, appointmentId);
+        }
+
+        public List<Appointment> SearchByCustomerId(int customerId)
+        {
+            var list = _appDal.GetAll();
+            return Searching.SearchByCustomerId(list, customerId);
+        }
+
+        public List<Appointment> SearchByPetId(int petId)
+        {
+            var list = _appDal.GetAll();
+            return Searching.SearchByPetId(list, petId);
+        }
+
+        public List<Appointment> SearchByDate(DateTime appointmentDate)
+        {
+            var list = _appDal.GetAll();
+            return Searching.SearchByDate(list, appointmentDate);
+        }
     }
 }

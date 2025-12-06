@@ -52,7 +52,7 @@ namespace PetGrooming.DAL
             using var cmd = conn.CreateCommand();
 
 
-            // Appointment
+            // Delete Appointment for customerid - Foreign Key
             cmd.CommandText = @"
                 DELETE FROM Appointments
                 WHERE CustomerId = @cid;
@@ -61,7 +61,7 @@ namespace PetGrooming.DAL
             cmd.ExecuteNonQuery();
 
 
-            // Pets
+            // Pets table
             cmd.CommandText = @"
                 DELETE FROM Pets
                 WHERE CustomerId = @cid;
@@ -70,7 +70,7 @@ namespace PetGrooming.DAL
             cmd.ExecuteNonQuery();
 
 
-            // Delete from Customers
+            // Delete from Customer table - Primary Key
             cmd.CommandText = @"
                 DELETE FROM Customers
                 WHERE CustomerId = @cid;
@@ -80,6 +80,7 @@ namespace PetGrooming.DAL
 
         }
 
+        //updated list to return all customers
         public List<Customer> GetAll()
         {
             var custlist = new List<Customer>();
@@ -97,18 +98,18 @@ namespace PetGrooming.DAL
                 var customer = new Customer
                 {
                     CustomerId = reader.GetInt32(0),
-                    OwnerName = reader.GetString(1),
-                    PhoneNumber = reader.GetString(2),
-                    Email = reader.GetString(3)
+                    OwnerName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                    PhoneNumber = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                    Email = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
                 };
                 custlist.Add(customer);
             }
             return custlist;
         }
 
-        public Customer GetById(int customerId)
+        public Customer? GetById(int customerId)
         {
-            Customer customer = null;
+            Customer? customer = null;
             using var conn = new SqliteConnection(_conn);
             conn.Open();
             using var cmd = conn.CreateCommand();

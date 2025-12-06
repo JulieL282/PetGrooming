@@ -12,9 +12,9 @@ namespace PetGrooming.Models
         public int CustomerId { get; set; }
         public int PetId { get; set; }
         public DateTime AppointmentDate { get; set; }
-        public string GroomerName { get; set; }
+        public string GroomerName { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public string Service { get; set; }
+        public string Service { get; set; } = string.Empty;
 
     }
 }

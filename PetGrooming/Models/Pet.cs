@@ -10,8 +10,8 @@ namespace PetGrooming.Models
     {
         public int PetId { get; set; }
         public int CustomerId { get; set; }
-        public string PetName { get; set; }
-        public string Breed { get; set; }
+        public string PetName { get; set; } = string.Empty;
+        public string Breed { get; set; } = string.Empty;
         public int Age { get; set; }
 
     }
