@@ -12,13 +12,6 @@ namespace PetGrooming.Models
         public string OwnerName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-
-        public List<Pet> Pets { get; set; }
-
-        public Customer()
-        {
-            Pets = new List<Pet>();
-
-        }
+        public List<Pet> Pets { get; set; } = new List<Pet>();
     }
 }

@@ -16,5 +16,9 @@ namespace PetGrooming.Models
         public decimal Price { get; set; }
         public string Service { get; set; } = string.Empty;
 
+        //From BLL to Display - View all Appointments (Appointmentmenu)
+        public string OwnerName { get; set; } = string.Empty;
+        public string PetName { get; set; } = string.Empty;
+
     }
 }

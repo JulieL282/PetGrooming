@@ -7,10 +7,19 @@ namespace PetGrooming
     {
         private static void Main(string[] args)
         {
-            // Initialize database connection
-            Database.Initialize();
+            try
+            {
+                // Initialize database connection
+                Database.Initialize();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error initializing database: " + ex.Message);
+                return;
+            }
             // Start the main menu
-            MainMenu.Display();
+            var main = new MainMenu();
+            main.Show();
         }
     }
 }
