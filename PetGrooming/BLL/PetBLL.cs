@@ -29,7 +29,7 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Error creating pet: ", ex);
+                throw new BusinessException("Error creating pet info: ", ex);
             }
         }
         public void Update(Pet p)
@@ -43,7 +43,7 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Error updating pet: ", ex);
+                throw new BusinessException("Error updating pet info: ", ex);
             }
         }
         public void Delete(int petId)
@@ -56,7 +56,7 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Error deleting pet: ", ex);
+                throw new BusinessException("Error deleting pet info: ", ex);
             }
         }
         public List<Pet> GetAll()
@@ -80,7 +80,7 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Pet ID not found: ", ex);
+                throw new BusinessException($"Pet ID {petId} not found: ", ex);
             }
         }
         public List<Pet> GetByCustomerId(int customerId)
@@ -93,7 +93,7 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Pets not found with the provided Customer ID ", ex);
+                throw new BusinessException($"Pets not found with the provided Customer ID {customerId}", ex);
             }
         }
         public List<Pet> SearchByPetName(string petName)

@@ -13,24 +13,27 @@ namespace PetGrooming.BLL
         private readonly IAppointmentDAL _appointmentdal;
         private readonly ICustomerBLL _customerbll;
         private readonly IPetBLL _petbll;
+        private readonly IServiceBLL _servicebll;
 
         public AppointmentBLL(
             IAppointmentDAL? appointmentDAL = null, 
             ICustomerBLL? customerbll = null, 
-            IPetBLL? petbll = null)
+            IPetBLL? petbll = null,
+            IServiceBLL? servicebll = null)
         {
             _appointmentdal = appointmentDAL ?? new AppointmentDAL();
             _customerbll = customerbll ?? new CustomerBLL();
             _petbll = petbll ?? new PetBLL();
+            _servicebll = servicebll ?? new ServiceBLL();
         }
 
         public void Create(Appointment a)
         {
             if (a.CustomerId <= 0)
-                throw new ValidationException("Invalid Customer ID");
+                throw new ValidationException("Customer ID is required.");
 
             if (a.PetId <= 0)
-                throw new ValidationException("Invalid Pet ID");
+                throw new ValidationException("Pet ID is required");
 
             if (a.AppointmentDate == DateTime.MinValue)
                 throw new ValidationException("Appointment date is required.");
@@ -45,6 +48,10 @@ namespace PetGrooming.BLL
             if (pet.CustomerId != customer.CustomerId)
                 throw new ValidationException("The pet does not belong to the customer.");
 
+            // Service price auto filled
+            var serviceList = _servicebll.GetAll();
+            var service = serviceList.FirstOrDefault(s => s.ServiceName.Equals(a.Service, StringComparison.OrdinalIgnoreCase));
+            
             try
             {
                 _appointmentdal.Insert(a);
@@ -91,8 +98,8 @@ namespace PetGrooming.BLL
 
                 foreach (var a in appointments)
                 {
-                    a.OwnerName = customers.FirstOrDefault(c => c.CustomerId == a.CustomerId)?.OwnerName ?? string.Empty;
-                    a.PetName = pets.FirstOrDefault(p => p.PetId == a.PetId)?.PetName ?? string.Empty;
+                    a.OwnerName = customers.FirstOrDefault(c => c.CustomerId == a.CustomerId)?.OwnerName ?? "";
+                    a.PetName = pets.FirstOrDefault(p => p.PetId == a.PetId)?.PetName ?? "";
                 }
                 return appointments;
             }
@@ -109,7 +116,7 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Error to get appointment by ID: ", ex);
+                throw new BusinessException($"Error retrieving appointment by ID {appointmentId} : ", ex);
             }
         }
 

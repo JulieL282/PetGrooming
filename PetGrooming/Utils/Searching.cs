@@ -77,3 +77,23 @@ namespace PetGrooming.Utils
         }
     }
 }
+
+//namespace PetGrooming.Utils
+//{
+//    public static class Searching
+//    {
+//        public static Appointment? BinarySearchByAppointmentId(List<Appointment> src, int appointmentId)
+//        {
+//            var list = src.OrderBy(a => a.AppointmentId).ToList();
+//            int left = 0, right = list.Count - 1;
+//            while (left <= right)
+//            {
+//                int mid = (left + right) / 2;
+//                if (list[mid].AppointmentId == appointmentId) return list[mid];
+//                if (list[mid].AppointmentId < appointmentId) left = mid + 1;
+//                else right = mid - 1;
+//            }
+//            return null;
+//        }
+//    }
+//}

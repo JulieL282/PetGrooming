@@ -1,9 +1,10 @@
-﻿using PetGrooming.DAL;
+﻿using System;
+using PetGrooming.DAL;
 using PetGrooming.Menu;
 
 namespace PetGrooming
 {
-    internal class Program
+    public class Program
     {
         private static void Main(string[] args)
         {
@@ -11,10 +12,11 @@ namespace PetGrooming
             {
                 // Initialize database connection
                 Database.Initialize();
+                Database.SeedIfEmpty();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error initializing database: " + ex.Message);
+                Console.WriteLine($"Error initializing database: {ex.Message}");
                 return;
             }
             // Start the main menu

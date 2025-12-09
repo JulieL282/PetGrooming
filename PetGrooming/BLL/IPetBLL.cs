@@ -16,7 +16,6 @@ namespace PetGrooming.BLL
         List<Pet> GetAll();
         Pet? GetById(int petId);
         List<Pet> GetByCustomerId(int customerId);
-
         List<Pet> SearchByPetName(string petName);
         List<Pet> SortByPetName();
     }

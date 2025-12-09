@@ -30,7 +30,7 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error inserting customer: " + ex);
+                throw new DataAccessException("Error adding customer info: ", ex);
             }
         }
 
@@ -56,7 +56,7 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error updating customer: " + ex);
+                throw new DataAccessException("Error updating customer info: ", ex);
             }
             
         }
@@ -70,7 +70,7 @@ namespace PetGrooming.DAL
                 using var cmd = conn.CreateCommand();
 
 
-                // Delete Appointment for customerid - Foreign Key
+                // Delete Appointments for customerid - Foreign Key
                 cmd.CommandText = @"
                 DELETE FROM Appointments
                 WHERE CustomerId = @cid;
@@ -98,16 +98,15 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error deleting customer: " + ex);
+                throw new DataAccessException("Error deleting customer info: ", ex);
             }
         }
 
-        //updated list to return all customers
         public List<Customer> GetAll()
         {
             try
             {
-                var custlist = new List<Customer>();
+                var custList = new List<Customer>();
                 using var conn = new SqliteConnection(_conn);
                 conn.Open();
                 using var cmd = conn.CreateCommand();
@@ -120,20 +119,19 @@ namespace PetGrooming.DAL
 
                 while (reader.Read())
                 {
-                    var customer = new Customer
+                    custList.Add(new Customer
                     {
                         CustomerId = reader.GetInt32(0),
                         OwnerName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
                         PhoneNumber = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                         Email = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
-                    };
-                    custlist.Add(customer);
+                    });
                 }
-                return custlist;
+                return custList;
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error retrieving customers: " + ex);
+                throw new DataAccessException("Error retrieving customers list: ", ex);
             }    
         }
 
@@ -141,33 +139,33 @@ namespace PetGrooming.DAL
         {
             try
             {
-                Customer? customer = null;
                 using var conn = new SqliteConnection(_conn);
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-                SELECT CustomerId, OwnerName, PhoneNumber, Email
+                SELECT *
                 FROM Customers
                 WHERE CustomerId = @cid;
                 ";
                 cmd.Parameters.AddWithValue("@cid", customerId);
+
                 using var reader = cmd.ExecuteReader();
 
                 if (reader.Read())
                 {
-                    customer = new Customer
+                    return new Customer
                     {
                         CustomerId = reader.GetInt32(0),
-                        OwnerName = reader.GetString(1),
-                        PhoneNumber = reader.GetString(2),
-                        Email = reader.GetString(3)
+                        OwnerName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                        PhoneNumber = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        Email = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
                     };
                 }
-                return customer;
+                return null;
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error retrieving customer: " + ex);
+                throw new DataAccessException($"Error retrieving customer info by ID {customerId} : ", ex);
             }
            
         }

@@ -28,7 +28,7 @@ namespace PetGrooming.BLL
                 }
                 catch (DataAccessException ex)
                 {
-                    throw new BusinessException("Error creating customer: ", ex);
+                    throw new BusinessException("Error creating customer info: ", ex);
                 }
             
         }
@@ -55,7 +55,7 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Error to delete customer: ", ex);
+                throw new BusinessException("Error deleting customer info: ", ex);
             }
         }
         public List<Customer> GetAll()
@@ -66,7 +66,7 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Error loading customers: ", ex);
+                throw new BusinessException("Error loading customer list: ", ex);
             }
         }
         public Customer? GetById(int customerId)
@@ -79,19 +79,19 @@ namespace PetGrooming.BLL
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Customer ID not found: ", ex);
+                throw new BusinessException($"Customer ID {customerId} not found: ", ex);
             }
         }
         public List<Customer> SearchByOwnerName(string ownerName)
         {
-            var custList = GetAll();
-            return custList.Where(c => c.OwnerName.Contains(ownerName ?? "", StringComparison.OrdinalIgnoreCase)).ToList();
+            return GetAll()
+                .Where(c => c.OwnerName
+                .Contains(ownerName ?? "", StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         public List<Customer> SortByOwnerName()
         {
-            var custList = GetAll();
-            return custList.OrderBy(c => c.OwnerName).ToList();
+            return GetAll().OrderBy(c => c.OwnerName).ToList();
         }
 
     }

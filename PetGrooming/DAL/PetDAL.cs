@@ -30,7 +30,7 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error inserting pet: " + ex);
+                throw new DataAccessException("Error adding pet info: ", ex);
             }
         }
 
@@ -58,7 +58,7 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error updating pet: " + ex);
+                throw new DataAccessException("Error updating pet info: ", ex);
             }
         }
 
@@ -78,7 +78,7 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error deleting pet: " + ex);
+                throw new DataAccessException("Error deleting pet info: ", ex);
             }
         }
         public List<Pet> GetAll()
@@ -90,27 +90,26 @@ namespace PetGrooming.DAL
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-                SELECT PetId, PetName, Breed, Age, CustomerId
+                SELECT *
                 FROM Pets;
                 ";
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    var pet = new Pet
+                    petList.Add(new Pet
                     {
                         PetId = reader.GetInt32(0),
-                        PetName = reader.GetString(1),
-                        Breed = reader.GetString(2),
-                        Age = reader.GetInt32(3),
+                        PetName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                        Breed = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        Age = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
                         CustomerId = reader.GetInt32(4)
-                    };
-                    petList.Add(pet);
+                    });
                 }
-                return pet;
+                return petList;
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error retrieving pets: " + ex);
+                throw new DataAccessException("Error retrieving pet list: ", ex);
             }
 
         }
@@ -122,7 +121,7 @@ namespace PetGrooming.DAL
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-                SELECT PetId, PetName, Breed, Age, CustomerId
+                SELECT *
                 FROM Pets
                 WHERE PetId = @pid;
                 ";
@@ -133,9 +132,9 @@ namespace PetGrooming.DAL
                     return new Pet
                     {
                         PetId = reader.GetInt32(0),
-                        PetName = reader.GetString(1),
-                        Breed = reader.GetString(2),
-                        Age = reader.GetInt32(3),
+                        PetName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                        Breed = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        Age = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
                         CustomerId = reader.GetInt32(4)
                     };
                 }
@@ -143,7 +142,7 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error retrieving pet by ID: " + ex);
+                throw new DataAccessException($"Error retrieving pet info by ID {petId} : ", ex);
             }
         }
         public List<Pet> GetByCustomerId(int customerId)
@@ -155,7 +154,7 @@ namespace PetGrooming.DAL
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-                SELECT PetId, PetName, Breed, Age, CustomerId
+                SELECT *
                 FROM Pets
                 WHERE CustomerId = @cid;
                 ";
@@ -163,21 +162,20 @@ namespace PetGrooming.DAL
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    var pet = new Pet
+                    petList.Add(new Pet
                     {
                         PetId = reader.GetInt32(0),
-                        PetName = reader.GetString(1),
-                        Breed = reader.GetString(2),
-                        Age = reader.GetInt32(3),
+                        PetName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                        Breed = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        Age = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
                         CustomerId = reader.GetInt32(4)
-                    };
-                    petList.Add(pet);
+                    });
                 }
                 return petList;
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error retrieving pets by customer ID: " + ex);
+                throw new DataAccessException($"Error retrieving pet info by customer ID {customerId} : ", ex);
             }
         }
     }

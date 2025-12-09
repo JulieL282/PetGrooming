@@ -11,12 +11,22 @@ namespace PetGrooming.Menu
     public class AppointmentMenu
     {
         // Polymorphism Interface
-        private readonly IAppointmentService _service;
+        private readonly IAppointmentBLL _app;
+        private readonly ICustomerBLL _cust;
+        private readonly IPetBLL _pet;
+        private readonly IServiceBLL _service;
 
-        public AppointmentMenu()
+        public AppointmentMenu(
+            IAppointmentBLL? app = null, 
+            ICustomerBLL? cust = null,
+            IPetBLL? pet = null,
+            IServiceBLL? service = null)
         {
             // Interface implementation
-            _service = new AppointmentService();
+            _app = app ?? new AppointmentBLL();
+            _cust = cust ?? new CustomerBLL();
+            _pet = pet ?? new PetBLL();
+            _service = service ?? new ServiceBLL();
         }
         
         public void Manage()
@@ -54,41 +64,77 @@ namespace PetGrooming.Menu
             Console.Clear();
             var a = new Appointment();
             Console.Write("Enter Customer ID: ");
-            a.CustomerId = int.Parse(Console.ReadLine()!);
+            if (!int.TryParse(Console.ReadLine(), out var cid))
+            {
+                Console.WriteLine("Invalid Customer ID.");
+                return;
+            }
+            a.CustomerId = cid;
 
             Console.Write("Enter Pet ID: ");
+            if (!int.TryParse(Console.ReadLine(), out var pid))
+            {
+                Console.WriteLine("Invalid Pet ID.");
+                return;
+            }
             a.PetId = int.Parse(Console.ReadLine()!);
-
-            Console.WriteLine("Enter Appointment Date (yyyy-MM-dd HH:mm): ");
-            Console.WriteLine("Available Every 30 Minutes");
-            a.AppointmentDate = DateTime.Parse(Console.ReadLine()!);
-
-            Console.Write("Enter Groomer Name: ");
-            Console.WriteLine("Available Groomers: Alice, Bob, Charlie");
-            a.GroomerName = Console.ReadLine()!;
 
             Console.Write("Enter Service: ");
             Console.WriteLine("Available Services: Full Bath, Haircut, Nail Trim");
-            a.Service = Console.ReadLine()!;
+            var serviceInput = Console.ReadLine() ?? "";
+            a.Service = serviceInput;
 
-            Console.Write("Enter Price: ");
-            a.Price = decimal.Parse(Console.ReadLine()!);
+            var services = _service.GetAll();
+            var svc = services.Find(s => s.ServiceName.Equals(serviceInput, StringComparison.OrdinalIgnoreCase));
+
+            if (svc != null)
+            {
+                Console.WriteLine($"The price for {svc.ServiceName} is {svc.Price:C}");
+                Console.Write("Do you want to proceed with this service? (y/n): ");
+
+            }
+            var priceInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(serviceInput) && decimal.TryParse(priceInput, out var price)) 
+            {
+                a.Price = price;
+            }
+            else
+            {
+                
+                a.Price = svc?.Price ?? 0m;
+            }
+
+            Console.WriteLine("Enter Appointment Date (yyyy-MM-dd HH:mm): ");
+            Console.WriteLine("Available Every 30 Minutes");
+            if (!DateTime.TryParse(Console.ReadLine(), out var appDate))
+            {
+                Console.WriteLine("Invalid date format.");
+                return;
+            }
+            a.AppointmentDate = appDate;
+
+            Console.Write("Enter Groomer Name: ");
+            Console.WriteLine("Available Groomers: Alice, Bob, Charlie");
+            a.GroomerName = Console.ReadLine() ?? string.Empty;
 
             _service.Create(a);
             Console.WriteLine("Appointment created successfully. Press Any Key to Exit");
             Console.ReadKey(true);
-            Console.Clear();
+
+            /*Console.Write("Enter Price: ");
+            a.Price = decimal.Parse(Console.ReadLine()!);*/
+
         }
 
         private void ViewAll()
         {
             Console.Clear();
-            var appList = _service.GetAll();
-
-            Console.WriteLine("=== Current Appointments ===");
+            var appList = _service.GetAllWithNames();
+           
 
             if (appList.Count > 0)
             {
+                Console.WriteLine("=== Current Appointments ===");
                 foreach (var a in appList)
                 {
                     Console.WriteLine($"Appointment ID: {a.AppointmentId}, Appointment Date: YYYY-MM-DD HH:mm: {a.AppointmentDate}, Customer ID: {a.CustomerId}, Pet ID: {a.PetId}, Date: {a.AppointmentDate}, Groomer: {a.GroomerName}, Service: {a.Service}, Price: {a.Price}");
@@ -107,10 +153,13 @@ namespace PetGrooming.Menu
             Console.Clear();
             Console.Write("Enter Appointment ID to Update: ");
 
-            var appId = int.Parse(Console.ReadLine()!);
-
-            var a = _service.Find(appId);
-
+            if (!int.TryParse(Console.ReadLine(), out var appId))
+            {
+                Console.WriteLine("Invalid Appointment ID.");
+                return;
+            }
+            var a = _service.GetById(appId);
+            
             if (a == null)
             {
                 Console.WriteLine("Appointment not found. Press Any Key to Exit");
@@ -118,35 +167,65 @@ namespace PetGrooming.Menu
                 return;
             }
 
-            Console.Write("Enter New Customer ID: ");
-            a.CustomerId = int.Parse(Console.ReadLine()!);
-            Console.Write("Enter New Pet ID: ");
-            a.PetId = int.Parse(Console.ReadLine()!);
-            Console.Write("Enter New Appointment Date (yyyy-MM-dd HH:mm): ");
-            a.AppointmentDate = DateTime.Parse(Console.ReadLine()!);
-            Console.Write("Enter New Groomer Name: ");
-            a.GroomerName = Console.ReadLine()!;
-            Console.Write("Enter New Service: ");
-            a.Service =  Console.ReadLine()!;
-            Console.Write("Enter New Price: ");
-            a.Price = decimal.Parse(Console.ReadLine()!);
-            _service.Update(a);
-            Console.WriteLine("Appointment updated successfully. Press Any Key to Exit");
-            Console.ReadKey(true);
+            Console.WriteLine("Please choose an option you wish to updat");
+            Console.WriteLine("1. Appointment Date, 2. Groomer, 3. Service, 4. Price 0. Cancel");
+            var choice = Console.ReadLine();
+
+            switch(choice)
+            {
+                case "1":
+                    Console.Write("Enter new Appointment Date (yyyy-MM-dd HH:mm): ");
+                    if (DateTime.TryParse(Console.ReadLine(), out var newDate))
+                    {
+                        a.AppointmentDate = newDate;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid date format.");
+                        return;
+                    }
+                    break;
+                case "2":
+                    Console.Write("Enter new Groomer Name: ");
+                    a.GroomerName = Console.ReadLine() ?? string.Empty;
+                    break;
+                case "3":
+                    Console.Write("Enter new Service: ");
+                    a.Service = Console.ReadLine() ?? string.Empty;
+                    break;
+                case "4":
+                    Console.Write("Enter new Price: ");
+                    if (decimal.TryParse(Console.ReadLine(), out var newPrice))
+                    {
+                        a.Price = newPrice;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid price format.");
+                        return;
+                    }
+                    break;
+                case "0":
+                    return;
+                default:
+                    Console.WriteLine("Invalid option. Press Any Key to Exit");
+                    Console.ReadKey(true);
+                    return;
+            }
+
         }
 
         private void Delete()
         {
             Console.Clear();
             Console.Write("Enter Appointment ID to Delete: ");
-            var appId = int.Parse(Console.ReadLine()!);
-            var a = _service.Find(appId);
-            if (a == null)
+
+            if (!int.TryParse(Console.ReadLine(), out var appId))
             {
-                Console.WriteLine("Appointment not found. Press Any Key to Exit");
-                Console.ReadKey(true);
+                Console.WriteLine("Invalid Appointment ID.");
                 return;
             }
+
             _service.Delete(appId);
             Console.WriteLine("Appointment deleted successfully. Press Any Key to Exit");
             Console.ReadKey(true);

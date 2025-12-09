@@ -19,18 +19,20 @@ namespace PetGrooming.DAL
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-                INSERT INTO Appointments (CustomerId, PetId, AppointmentDate, Service)
-                VALUES (@cid, @pid, @appdate, @service);
+                INSERT INTO Appointments (CustomerId, PetId, AppointmentDate, GroomerName, Price, Service)
+                VALUES (@cid, @pid, @appdate, @groomer, @price, @service);
                 ";
                 cmd.Parameters.AddWithValue("@cid", a.CustomerId);
                 cmd.Parameters.AddWithValue("@pid", a.PetId);
                 cmd.Parameters.AddWithValue("@appdate", a.AppointmentDate.ToString("s")); // Make it Sortable
+                cmd.Parameters.AddWithValue("@groomer", a.GroomerName);
+                cmd.Parameters.AddWithValue("@price", a.Price);
                 cmd.Parameters.AddWithValue("@service", a.Service);
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error inserting appointment: " + ex);
+                throw new DataAccessException("Error adding appointment: ", ex);
             }
 
         }
@@ -63,7 +65,7 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error updating appointment: " + ex);
+                throw new DataAccessException("Error updating appointment: ", ex);
             }
 
         }
@@ -105,23 +107,24 @@ namespace PetGrooming.DAL
 
                 while (reader.Read())
                 {
-                    var appointment = new Appointment
+                    var date = reader.IsDBNull(3) ? DateTime.MinValue : DateTime.Parse(reader.GetString(3));
+                    appList.Add(new Appointment
                     {
                         AppointmentId = reader.GetInt32(0),
                         CustomerId = reader.GetInt32(1),
                         PetId = reader.GetInt32(2),
-                        AppointmentDate = DateTime.Parse(reader.GetString(3)),
-                        GroomerName = reader.GetString(4),
-                        Price = reader.GetDecimal(5),
-                        Service = reader.GetString(6)
-                    };
-                    appList.Add(appointment);
+                        AppointmentDate = date,
+                        GroomerName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                        Price = reader.IsDBNull(5) ? 0m : reader.GetDecimal(5),
+                        Service = reader.IsDBNull(6) ? string.Empty : reader.GetString(6)
+                    });
+                    
                 }
                 return appList;
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error retrieving appointments: " + ex);
+                throw new DataAccessException("Error retrieving appointment list: ", ex);
             }
 
         }
@@ -142,22 +145,23 @@ namespace PetGrooming.DAL
                 using var reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
+                    var date = reader.IsDBNull(3) ? DateTime.MinValue : DateTime.Parse(reader.GetString(3));
                     return new Appointment
                     {
                         AppointmentId = reader.GetInt32(0),
                         CustomerId = reader.GetInt32(1),
                         PetId = reader.GetInt32(2),
-                        AppointmentDate = DateTime.Parse(reader.GetString(3)),
-                        GroomerName = reader.GetString(4),
-                        Price = reader.GetDecimal(5),
-                        Service = reader.GetString(6)
+                        AppointmentDate = date,
+                        GroomerName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                        Price = reader.IsDBNull(5) ? 0m : reader.GetDecimal(5),
+                        Service = reader.IsDBNull(6) ? string.Empty : reader.GetString(6)
                     };
                 }
                 return null;
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error retrieving appointment: " + ex);
+                throw new DataAccessException($"Error retrieving appointment info by ID {appointmentId} : ", ex);
 
             }
         }

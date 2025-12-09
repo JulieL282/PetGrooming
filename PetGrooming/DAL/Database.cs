@@ -31,7 +31,7 @@ namespace PetGrooming.DAL
 
             using var cmd = conn.CreateCommand();
 
-            // Customers Table (CRUD)
+            // Customers Table
             cmd.CommandText = @"
                 CREATE TABLE IF NOT EXISTS Customers (
                     CustomerId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,22 +39,30 @@ namespace PetGrooming.DAL
                     PhoneNumber TEXT,
                     Email TEXT
                 );";
-
-                //No retrun
+                //No return
                 cmd.ExecuteNonQuery();
 
             // Pets Table
             cmd.CommandText = @"
                 CREATE TABLE IF NOT EXISTS Pets (
-                    PetId INTEGER PRIMARY KEY AUTOINCREMENT,
-                    CustomerId INTEGER NOT NULL,
+                    PetId INTEGER PRIMARY KEY AUTOINCREMENT,                    
                     PetName TEXT NOT NULL,
                     Breed TEXT,
                     Age INTEGER,
+                    CustomerId INTEGER NOT NULL,
                     FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId)
                 );";
-
                cmd.ExecuteNonQuery();
+
+            // Services Table
+            cmd.CommandText = @"
+                CREATE TABLE IF NOT EXISTS Services (
+                    ServiceId INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ServiceName TEXT NOT NULL,
+                    Price REAL NOT NULL
+                );";
+                cmd.ExecuteNonQuery();
+
 
             // Appointments Table
             cmd.CommandText = @"
@@ -70,6 +78,29 @@ namespace PetGrooming.DAL
                     FOREIGN KEY (PetId) REFERENCES Pets(PetId)
                 );";
                 cmd.ExecuteNonQuery();
+        }
+
+        public static void SeedIfEmpty()
+        {
+            using var conn = new SqliteConnection(ConnStr);
+            conn.Open();
+            using var cmd = conn.CreateCommand();
+
+            // Check if Services table is empty
+            cmd.CommandText = "SELECT COUNT(*) FROM Services;";
+            var count = Convert.ToInt32(cmd.ExecuteScalar() ?? 0);
+            if (count == 0)
+            {
+                // Seed initial services
+                cmd.CommandText = @"
+                    INSERT INTO Services (ServiceName, Price) VALUES
+                    ('Full Grooming', 50.00),
+                    ('Full Bath', 30.00),
+                    ('Hair Cut', 20.00);
+                    ('Nail Trimming', 15.00),
+                ";
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }
