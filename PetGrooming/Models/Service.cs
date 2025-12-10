@@ -10,6 +10,6 @@ namespace PetGrooming.Models
     {
         public int ServiceId { get; set; }
         public string ServiceName { get; set; } = string.Empty;
-        public decimal Price { get; set; }
+        public decimal BasePrice { get; set; }
     }
 }

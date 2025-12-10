@@ -12,18 +12,20 @@ namespace PetGrooming.BLL
         void Create(Appointment a);
         void Update(Appointment a);
         void Delete(int appointmentId);
-
         List<Appointment> GetAllWithNames();
         Appointment? GetById(int appointmentId);
+       
 
         // Sorting
         List<Appointment> SortByDate();
         List<Appointment> SortByOwnerName();
         List<Appointment> SortByPetName();
+        List<Appointment> SortByAppointmentId();
 
         //Searching
         Appointment? SearchByAppointmentId(int appointmentId);
-        List<Appointment> SearchByOwnerName(string ownerName);
-        List<Appointment> SearchByPetName(string petName);
+        List<Appointment> SearchByCustomerId(int customerId);
+        List<Appointment> SearchByPetId(int petId);
+        List<Appointment> SearchByDate(DateTime date);
     }
 }

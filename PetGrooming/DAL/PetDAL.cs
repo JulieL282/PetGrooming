@@ -19,13 +19,14 @@ namespace PetGrooming.DAL
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-                INSERT INTO Pets (PetName, Breed, Age, CustomerId)
-                VALUES (@petname, @breed, @age, @cid);
+                INSERT INTO Pets (CustomerId, PetName, Breed, Age)
+                VALUES (@cid@petname, @breed, @age);
                 ";
+                cmd.Parameters.AddWithValue("@cid", p.CustomerId);
                 cmd.Parameters.AddWithValue("@petname", p.PetName);
                 cmd.Parameters.AddWithValue("@breed", p.Breed);
                 cmd.Parameters.AddWithValue("@age", p.Age);
-                cmd.Parameters.AddWithValue("@cid", p.CustomerId);
+                
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -43,16 +44,17 @@ namespace PetGrooming.DAL
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
                 UPDATE Pets
-                SET PetName = @petname,
+                SET CustomerId = @cid,
+                    PetName = @petname,
                     Breed = @breed,
                     Age = @age,
                     CustomerId = @cid
                 WHERE PetId = @pid;
                 ";
+                cmd.Parameters.AddWithValue("@cid", p.CustomerId);
                 cmd.Parameters.AddWithValue("@petname", p.PetName);
                 cmd.Parameters.AddWithValue("@breed", p.Breed);
                 cmd.Parameters.AddWithValue("@age", p.Age);
-                cmd.Parameters.AddWithValue("@cid", p.CustomerId);
                 cmd.Parameters.AddWithValue("@pid", p.PetId);
                 cmd.ExecuteNonQuery();
             }
@@ -99,10 +101,10 @@ namespace PetGrooming.DAL
                     petList.Add(new Pet
                     {
                         PetId = reader.GetInt32(0),
-                        PetName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                        Breed = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                        Age = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
-                        CustomerId = reader.GetInt32(4)
+                        CustomerId = reader.GetInt32(1),
+                        PetName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        Breed = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
+                        Age = reader.IsDBNull(4) ? 0 : reader.GetInt32(4) 
                     });
                 }
                 return petList;
@@ -132,10 +134,10 @@ namespace PetGrooming.DAL
                     return new Pet
                     {
                         PetId = reader.GetInt32(0),
-                        PetName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                        Breed = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                        Age = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
-                        CustomerId = reader.GetInt32(4)
+                        CustomerId = reader.GetInt32(1),
+                        PetName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        Breed = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
+                        Age = reader.IsDBNull(4) ? 0 : reader.GetInt32(4)
                     };
                 }
                 return null;
@@ -165,10 +167,10 @@ namespace PetGrooming.DAL
                     petList.Add(new Pet
                     {
                         PetId = reader.GetInt32(0),
-                        PetName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                        Breed = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                        Age = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
-                        CustomerId = reader.GetInt32(4)
+                        CustomerId = reader.GetInt32(1),
+                        PetName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        Breed = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
+                        Age = reader.IsDBNull(4) ? 0 : reader.GetInt32(4)
                     });
                 }
                 return petList;

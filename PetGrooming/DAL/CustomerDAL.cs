@@ -131,7 +131,7 @@ namespace PetGrooming.DAL
             }
             catch (Exception ex)
             {
-                throw new DataAccessException("Error retrieving customers list: ", ex);
+                throw new DataAccessException("Error retrieving customer list: ", ex);
             }    
         }
 

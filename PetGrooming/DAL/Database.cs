@@ -58,8 +58,8 @@ namespace PetGrooming.DAL
             cmd.CommandText = @"
                 CREATE TABLE IF NOT EXISTS Services (
                     ServiceId INTEGER PRIMARY KEY AUTOINCREMENT,
-                    ServiceName TEXT NOT NULL,
-                    Price REAL NOT NULL
+                    ServiceName TEXT NOT NULL UNIQUE,
+                    BasePrice REAL NOT NULL
                 );";
                 cmd.ExecuteNonQuery();
 
@@ -70,37 +70,32 @@ namespace PetGrooming.DAL
                     AppointmentId INTEGER PRIMARY KEY AUTOINCREMENT,
                     CustomerId INTEGER NOT NULL,
                     PetId INTEGER NOT NULL,
+                    ServiceId INTEGER NOT NULL,
                     AppointmentDate TEXT NOT NULL,
                     GroomerName TEXT,
                     Price REAL,
-                    Service TEXT,
                     FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId),
                     FOREIGN KEY (PetId) REFERENCES Pets(PetId)
+                    FoREIGN KEY (ServiceId) REFERENCES Services(ServiceId)
                 );";
                 cmd.ExecuteNonQuery();
-        }
 
-        public static void SeedIfEmpty()
-        {
-            using var conn = new SqliteConnection(ConnStr);
-            conn.Open();
-            using var cmd = conn.CreateCommand();
-
-            // Check if Services table is empty
-            cmd.CommandText = "SELECT COUNT(*) FROM Services;";
+            cmd.CommandText = "Select Count(*) From Services;";
             var count = Convert.ToInt32(cmd.ExecuteScalar() ?? 0);
             if (count == 0)
             {
                 // Seed initial services
                 cmd.CommandText = @"
-                    INSERT INTO Services (ServiceName, Price) VALUES
+                    INSERT INTO Services (ServiceName, BasePrice) VALUES
                     ('Full Grooming', 50.00),
-                    ('Full Bath', 30.00),
-                    ('Hair Cut', 20.00);
-                    ('Nail Trimming', 15.00),
+                    ('Bath', 30.00),
+                    ('Hair Cut', 20.00),
+                    ('Nail Trimming', 15.00);
                 ";
                 cmd.ExecuteNonQuery();
             }
         }
+
+        
     }
 }

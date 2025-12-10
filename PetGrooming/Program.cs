@@ -10,15 +10,15 @@ namespace PetGrooming
         {
             try
             {
-                // Initialize database connection
+                // Create DB, tables, and seed service data
                 Database.Initialize();
-                Database.SeedIfEmpty();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error initializing database: {ex.Message}");
                 return;
             }
+            
             // Start the main menu
             var main = new MainMenu();
             main.Show();

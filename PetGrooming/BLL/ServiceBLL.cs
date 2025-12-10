@@ -10,22 +10,22 @@ namespace PetGrooming.BLL
 {
     public class ServiceBLL : IServiceBLL
     {
-        public readonly IServiceDAL _servicedal;
+        public readonly IServiceDAL _sdal;
         public ServiceBLL(IServiceDAL? dal = null)
         {
-            _servicedal = dal ?? new ServiceDAL();
+            _sdal = dal ?? new ServiceDAL();
         }
         public void Create(Service s)
         {
             if (string.IsNullOrWhiteSpace(s.ServiceName))
                 throw new ValidationException("Service name is required.");
 
-            if (s.Price < 0)
+            if (s.BasePrice < 0)
                 throw new ValidationException("Service price cannot be negative.");
 
             try
             {
-                _servicedal.Insert(s);
+                _sdal.Insert(s);
             }
             catch (DataAccessException ex)
             {
@@ -38,7 +38,7 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Service ID.");
             try
             {
-                _servicedal.Update(s);
+                _sdal.Update(s);
             }
             catch (DataAccessException ex)
             {
@@ -51,7 +51,7 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Service ID.");
             try
             {
-                _servicedal.Delete(serviceId);
+                _sdal.Delete(serviceId);
             }
             catch (DataAccessException ex)
             {
@@ -62,7 +62,7 @@ namespace PetGrooming.BLL
         {
             try
             {
-                return _servicedal.GetAll();
+                return _sdal.GetAll();
             }
             catch (DataAccessException ex)
             {
@@ -75,11 +75,24 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Service ID.");
             try
             {
-                return _servicedal.GetById(serviceId);
+                return _sdal.GetById(serviceId);
             }
             catch (DataAccessException ex)
             {
                 throw new BusinessException($"Error retrieving service info with the provided Id {serviceId} : ", ex);
+            }
+        }
+        public Service? GetByName(string serviceName)
+        {
+            if (string.IsNullOrWhiteSpace(serviceName))
+                throw new ValidationException("Service name is required.");
+            try
+            {
+                return _sdal.GetByName(serviceName);
+            }
+            catch (DataAccessException ex)
+            {
+                throw new BusinessException($"Error retrieving service info : ", ex);
             }
         }
     }

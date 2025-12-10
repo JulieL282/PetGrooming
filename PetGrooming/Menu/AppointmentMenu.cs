@@ -11,22 +11,16 @@ namespace PetGrooming.Menu
     public class AppointmentMenu
     {
         // Polymorphism Interface
-        private readonly IAppointmentBLL _app;
-        private readonly ICustomerBLL _cust;
-        private readonly IPetBLL _pet;
-        private readonly IServiceBLL _service;
+        private readonly IAppointmentBLL _abll;
+        private readonly IServiceBLL _sbll;
 
         public AppointmentMenu(
-            IAppointmentBLL? app = null, 
-            ICustomerBLL? cust = null,
-            IPetBLL? pet = null,
-            IServiceBLL? service = null)
+            IAppointmentBLL? abll = null, 
+            IServiceBLL? sbll = null)
         {
             // Interface implementation
-            _app = app ?? new AppointmentBLL();
-            _cust = cust ?? new CustomerBLL();
-            _pet = pet ?? new PetBLL();
-            _service = service ?? new ServiceBLL();
+            _abll = abll ?? new AppointmentBLL();
+             _sbll = sbll ?? new ServiceBLL();
         }
         
         public void Manage()
@@ -42,19 +36,34 @@ namespace PetGrooming.Menu
                 Console.Write("Select an option: ");
 
                 var input = Console.ReadLine();
-
-                switch (input)
+                try
                 {
-                    case "1": Add(); break;
-                    case "2": ViewAll(); break;
-                    case "3": Update(); break;
-                    case "4": Delete(); break;
-                    case "0": return;
-                    default:
-                        Console.WriteLine("Invalid option. Please press any key to restart.");
-                        Console.ReadKey(true);
-                        break;
+                    switch (input)
+                    {
+                        case "1": Add(); break;
+                        case "2": ViewAll(); break;
+                        case "3": Update(); break;
+                        case "4": Delete(); break;
+                        case "0": return;
+                        default:
+                            Console.WriteLine("Invalid option. Please press any key to restart.");
+                            Console.ReadKey(true);
+                            break;
+                    }
                 }
+                catch (ValidationException vex)
+                {
+                    Console.WriteLine($"Validation Error: {vex.Message}");
+                    Console.WriteLine("Press any key to continue.");
+                    Console.ReadKey(true);
+                }
+                catch (BusinessException bex)
+                {
+                    Console.WriteLine($"Business Error: {bex.Message}");
+                    Console.WriteLine("Press any key to continue.");
+                    Console.ReadKey(true);
+                }
+
 
             }
         }
@@ -63,10 +72,12 @@ namespace PetGrooming.Menu
         {
             Console.Clear();
             var a = new Appointment();
+            Console.WriteLine("=== Create New Appointment ===");
             Console.Write("Enter Customer ID: ");
             if (!int.TryParse(Console.ReadLine(), out var cid))
             {
                 Console.WriteLine("Invalid Customer ID.");
+                Console.ReadKey(true);
                 return;
             }
             a.CustomerId = cid;
@@ -75,33 +86,59 @@ namespace PetGrooming.Menu
             if (!int.TryParse(Console.ReadLine(), out var pid))
             {
                 Console.WriteLine("Invalid Pet ID.");
+                Console.ReadKey(true);
                 return;
             }
-            a.PetId = int.Parse(Console.ReadLine()!);
+            a.PetId = pid;
 
-            Console.Write("Enter Service: ");
-            Console.WriteLine("Available Services: Full Bath, Haircut, Nail Trim");
-            var serviceInput = Console.ReadLine() ?? "";
-            a.Service = serviceInput;
+            var services = _sbll.GetAll();
+            Console.WriteLine("=== Available Services: ===");
 
-            var services = _service.GetAll();
-            var svc = services.Find(s => s.ServiceName.Equals(serviceInput, StringComparison.OrdinalIgnoreCase));
-
-            if (svc != null)
+            foreach (var svc in services)
             {
-                Console.WriteLine($"The price for {svc.ServiceName} is {svc.Price:C}");
-                Console.Write("Do you want to proceed with this service? (y/n): ");
-
+                Console.WriteLine($"- {svc.ServiceId}. {svc.ServiceName}: {svc.BasePrice:C}");
             }
-            var priceInput = Console.ReadLine();
-            if (!string.IsNullOrEmpty(serviceInput) && decimal.TryParse(priceInput, out var price)) 
+            Console.WriteLine("Please enter the Service ID from the list above: ");
+            if (!int.TryParse(Console.ReadLine(), out var sid))
             {
-                a.Price = price;
+                Console.WriteLine("Invalid Service ID.");
+                Console.ReadKey(true);
+                return;
+            }
+            a.ServiceId = sid;
+
+            if (sid > 0)
+            {
+                var service = services.FirstOrDefault(s => s.ServiceId == sid);
+                if (service != null)
+                {
+                    a.Price = service.BasePrice;
+                }
+                else
+                {
+                    Console.WriteLine("Service not found for the given Service ID.");
+                    Console.ReadKey(true);
+                    return;
+                }
+            }
+            Console.WriteLine("Press Enter to continue with the Base Price");
+            var priceinput = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(priceinput))
+            {
+                a.Price = 0m; // auto fill base price
             }
             else
             {
-                
-                a.Price = svc?.Price ?? 0m;
+                if (decimal.TryParse(priceinput, out var customPrice))
+                {
+                    a.Price = customPrice;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid price format.");
+                    Console.ReadKey(true);
+                    return;
+                }
             }
 
             Console.WriteLine("Enter Appointment Date (yyyy-MM-dd HH:mm): ");
@@ -117,35 +154,31 @@ namespace PetGrooming.Menu
             Console.WriteLine("Available Groomers: Alice, Bob, Charlie");
             a.GroomerName = Console.ReadLine() ?? string.Empty;
 
-            _service.Create(a);
+            _abll.Create(a);
             Console.WriteLine("Appointment created successfully. Press Any Key to Exit");
             Console.ReadKey(true);
-
-            /*Console.Write("Enter Price: ");
-            a.Price = decimal.Parse(Console.ReadLine()!);*/
 
         }
 
         private void ViewAll()
         {
             Console.Clear();
-            var appList = _service.GetAllWithNames();
+            var appList = _abll.GetAllWithNames();
            
 
-            if (appList.Count > 0)
+            if (appList.Count == 0)
             {
-                Console.WriteLine("=== Current Appointments ===");
-                foreach (var a in appList)
-                {
-                    Console.WriteLine($"Appointment ID: {a.AppointmentId}, Appointment Date: YYYY-MM-DD HH:mm: {a.AppointmentDate}, Customer ID: {a.CustomerId}, Pet ID: {a.PetId}, Date: {a.AppointmentDate}, Groomer: {a.GroomerName}, Service: {a.Service}, Price: {a.Price}");
-                }
+                Console.WriteLine("No appointments found. Press Any Key to Exit");
+                Console.ReadKey(true);
+                return;
+            }
+            foreach ( var app in appList)
+            {
+                Console.WriteLine($"ID: {app.AppointmentId}, Date: {app.AppointmentDate}, Owner: {app.OwnerName}, Pet: {app.PetName}, Groomer: {app.GroomerName}, Service: {app.ServiceName}, Price: {app.Price:C}");
+            }
+            Console.WriteLine("Press Any Key to Exit");
+            Console.ReadKey(true);
 
-                Console.WriteLine("=== END ===");
-            }
-            else
-            {
-                Console.WriteLine("No appointments found.");
-            }
         }
 
         private void Update()
@@ -156,9 +189,10 @@ namespace PetGrooming.Menu
             if (!int.TryParse(Console.ReadLine(), out var appId))
             {
                 Console.WriteLine("Invalid Appointment ID.");
+                Console.ReadKey(true);
                 return;
             }
-            var a = _service.GetById(appId);
+            var a = _abll.GetById(appId);
             
             if (a == null)
             {
@@ -168,7 +202,12 @@ namespace PetGrooming.Menu
             }
 
             Console.WriteLine("Please choose an option you wish to updat");
-            Console.WriteLine("1. Appointment Date, 2. Groomer, 3. Service, 4. Price 0. Cancel");
+            Console.WriteLine("1. Appointment Date");
+            Console.WriteLine("2. Groomer Name");
+            Console.WriteLine("3. Service");
+            Console.WriteLine("4. Price");
+            Console.WriteLine("0. Cancel");
+            Console.Write("Select an option: ");
             var choice = Console.ReadLine();
 
             switch(choice)
@@ -187,11 +226,23 @@ namespace PetGrooming.Menu
                     break;
                 case "2":
                     Console.Write("Enter new Groomer Name: ");
+                    Console.WriteLine("Available Groomers: Alice, Bob, Charlie");
                     a.GroomerName = Console.ReadLine() ?? string.Empty;
                     break;
                 case "3":
                     Console.Write("Enter new Service: ");
-                    a.Service = Console.ReadLine() ?? string.Empty;
+                    var services = _sbll.GetAll();
+                    foreach (var svc in services)
+                    {
+                        Console.WriteLine($"- {svc.ServiceId}. {svc.ServiceName}: {svc.BasePrice:C}");
+                    }
+                    Console.WriteLine("Please enter the Service ID from the list above: ");
+                    if (!int.TryParse(Console.ReadLine(), out var newSid))
+                    {
+                        Console.WriteLine("Invalid Service ID.");
+                        return;
+                    }
+                    a.ServiceId = newSid;
                     break;
                 case "4":
                     Console.Write("Enter new Price: ");
@@ -202,6 +253,7 @@ namespace PetGrooming.Menu
                     else
                     {
                         Console.WriteLine("Invalid price format.");
+                        Console.ReadKey(true);
                         return;
                     }
                     break;
@@ -212,6 +264,9 @@ namespace PetGrooming.Menu
                     Console.ReadKey(true);
                     return;
             }
+            _abll.Update(a);
+            Console.WriteLine("Appointment updated successfully. Press Any Key to Exit");
+            Console.ReadKey(true);
 
         }
 
@@ -223,10 +278,11 @@ namespace PetGrooming.Menu
             if (!int.TryParse(Console.ReadLine(), out var appId))
             {
                 Console.WriteLine("Invalid Appointment ID.");
+                Console.ReadKey(true);
                 return;
             }
 
-            _service.Delete(appId);
+            _abll.Delete(appId);
             Console.WriteLine("Appointment deleted successfully. Press Any Key to Exit");
             Console.ReadKey(true);
         }

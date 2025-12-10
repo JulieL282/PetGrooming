@@ -20,11 +20,11 @@ namespace PetGrooming.DAL
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-                INSERT INTO Services (ServiceName, Price)
+                INSERT INTO Services (ServiceName, BasePrice)
                 VALUES (@sname, @price);
                 ";
                 cmd.Parameters.AddWithValue("@sname", s.ServiceName);
-                cmd.Parameters.AddWithValue("@price", s.Price);
+                cmd.Parameters.AddWithValue("@price", s.BasePrice);
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -43,11 +43,11 @@ namespace PetGrooming.DAL
                 cmd.CommandText = @"
                 UPDATE Services
                 SET ServiceName = @sname,
-                    Price = @price
+                    BasePrice = @price
                 WHERE ServiceId = @sid;
                 ";
                 cmd.Parameters.AddWithValue("@sname", s.ServiceName);
-                cmd.Parameters.AddWithValue("@price", s.Price);
+                cmd.Parameters.AddWithValue("@BasePrice", s.BasePrice);
                 cmd.Parameters.AddWithValue("@sid", s.ServiceId);
                 cmd.ExecuteNonQuery();
             }
@@ -94,7 +94,7 @@ namespace PetGrooming.DAL
                     {
                         ServiceId = reader.GetInt32(0),
                         ServiceName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                        Price = reader.IsDBNull(2) ? 0m : reader.GetDecimal(2)
+                        BasePrice = reader.IsDBNull(2) ? 0m : reader.GetDecimal(2)
                     });
                 }
                 return sList;
@@ -125,7 +125,7 @@ namespace PetGrooming.DAL
                     {
                         ServiceId = reader.GetInt32(0),
                         ServiceName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                        Price = reader.IsDBNull(2) ? 0m : reader.GetDecimal(2)
+                        BasePrice = reader.IsDBNull(2) ? 0m : reader.GetDecimal(2)
                     };
                 }
                 return null;
@@ -133,6 +133,36 @@ namespace PetGrooming.DAL
             catch (Exception ex)
             {
                 throw new DataAccessException($"Error retrieving service by ID {serviceId} : ", ex);
+            }
+        }
+        public Service? GetByName(string serviceName)
+        {
+            try
+            {
+                using var conn = new SqliteConnection(_conn);
+                conn.Open();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = @"
+                SELECT *
+                FROM Services
+                WHERE ServiceName = @sname;
+                ";
+                cmd.Parameters.AddWithValue("@sname", serviceName);
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new Service
+                    {
+                        ServiceId = reader.GetInt32(0),
+                        ServiceName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                        BasePrice = reader.IsDBNull(2) ? 0m : reader.GetDecimal(2)
+                    };
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException($"Error retrieving service by Name {serviceName} : ", ex);
             }
         }
     }

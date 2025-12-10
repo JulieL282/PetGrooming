@@ -11,10 +11,10 @@ namespace PetGrooming.BLL
     public class CustomerBLL : ICustomerBLL
     {
 
-        private readonly ICustomerDAL _customerdal;
+        private readonly ICustomerDAL _cdal;
         public CustomerBLL(ICustomerDAL? dal = null)
         {
-            _customerdal = dal ?? new CustomerDAL();
+            _cdal = dal ?? new CustomerDAL();
         }
         public void Create(Customer c)
         {
@@ -24,7 +24,7 @@ namespace PetGrooming.BLL
 
                 try
                 {
-                    _customerdal.Insert(c);
+                _cdal.Insert(c);
                 }
                 catch (DataAccessException ex)
                 {
@@ -38,11 +38,11 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Customer ID.");
             try
             {
-                _customerdal.Update(c);
+                _cdal.Update(c);
             }
             catch (DataAccessException ex)
             {
-                throw new BusinessException("Error updating customer: ", ex);
+                throw new BusinessException("Error updating customer info: ", ex);
             }
         }
         public void Delete(int customerId)
@@ -51,7 +51,7 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Customer ID.");
             try
             {
-                _customerdal.Delete(customerId);
+                _cdal.Delete(customerId);
             }
             catch (DataAccessException ex)
             {
@@ -62,7 +62,7 @@ namespace PetGrooming.BLL
         {
             try
             {
-                return _customerdal.GetAll();
+                return _cdal.GetAll();
             }
             catch (DataAccessException ex)
             {
@@ -75,7 +75,7 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Customer ID.");
             try
             {
-                return _customerdal.GetById(customerId);
+                return _cdal.GetById(customerId);
             }
             catch (DataAccessException ex)
             {
@@ -86,12 +86,14 @@ namespace PetGrooming.BLL
         {
             return GetAll()
                 .Where(c => c.OwnerName
-                .Contains(ownerName ?? "", StringComparison.OrdinalIgnoreCase)).ToList();
+                .Contains(ownerName ?? string.Empty, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         public List<Customer> SortByOwnerName()
         {
-            return GetAll().OrderBy(c => c.OwnerName).ToList();
+            var copy = new List<Customer>(GetAll());
+            copy.Sort((c1, c2) => string.Compare(c1.OwnerName, c2.OwnerName, StringComparison.OrdinalIgnoreCase));
+            return copy;
         }
 
     }

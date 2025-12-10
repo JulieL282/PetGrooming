@@ -9,20 +9,20 @@ namespace PetGrooming.Utils
 {
     public static class Searching
     {
-        public static Appointment? BinarySearchByAppointmentId(List<Appointment> appList, int appointmentId)
+        public static Appointment? BinarySearchByAppointmentId(List<Appointment> sorted, int targetId)
         {
             int left = 0;
-            int right = appList.Count - 1;
+            int right = sorted.Count - 1;
             
             while (left <= right)
             {
                 int mid = (left + right) / 2;
 
-                if (appList[mid].AppointmentId == appointmentId)
+                if (sorted[mid].AppointmentId == targetId)
                 {
-                    return appList[mid];
+                    return sorted[mid];
                 }
-                else if (appList[mid].AppointmentId < appointmentId)
+                else if (sorted[mid].AppointmentId < targetId)
                 {
                     left = mid + 1;
                 }
@@ -34,66 +34,22 @@ namespace PetGrooming.Utils
             return null; // Not found
         }
 
+        //Linear Searches
         public static List<Appointment> SearchByCustomerId(List<Appointment> appList, int customerId)
         {
-            List<Appointment> results = new List<Appointment>();
-
-            foreach (var appointment in appList)
-            {
-                if (appointment.CustomerId == customerId)
-                {
-                    results.Add(appointment);
-                }
-            }
-            return results;
+            return appList.Where(a => a.CustomerId == customerId).ToList();
         }
 
         public static List<Appointment> SearchByPetId(List<Appointment> appList, int petId)
         {
-            List<Appointment> results = new List<Appointment>();
-
-            foreach (var appointment in appList)
-            {
-                if (appointment.PetId == petId)
-                {
-                    results.Add(appointment);
-                }
-            }
-            return results;
+           
+            return appList.Where(a => a.PetId == petId).ToList();
         }
 
         public static List<Appointment> SearchByDate(List<Appointment> appList, DateTime date)
         {
-            List<Appointment> results = new List<Appointment>();
-
-            foreach (var appointment in appList)
-            {
-                if (appointment.AppointmentDate.Date == date.Date)
-                {
-                    results.Add(appointment);
-                }
-            }
-            return results;
+            
+            return appList.Where(a => a.AppointmentDate.Date == date.Date).ToList();
         }
     }
 }
-
-//namespace PetGrooming.Utils
-//{
-//    public static class Searching
-//    {
-//        public static Appointment? BinarySearchByAppointmentId(List<Appointment> src, int appointmentId)
-//        {
-//            var list = src.OrderBy(a => a.AppointmentId).ToList();
-//            int left = 0, right = list.Count - 1;
-//            while (left <= right)
-//            {
-//                int mid = (left + right) / 2;
-//                if (list[mid].AppointmentId == appointmentId) return list[mid];
-//                if (list[mid].AppointmentId < appointmentId) left = mid + 1;
-//                else right = mid - 1;
-//            }
-//            return null;
-//        }
-//    }
-//}

@@ -10,22 +10,22 @@ namespace PetGrooming.BLL
 {
     public class PetBLL : IPetBLL
     {
-        private readonly IPetDAL _petdal;
+        private readonly IPetDAL _pdal;
         public PetBLL(IPetDAL? dal = null)
         {
-            _petdal = dal ?? new PetDAL();
+            _pdal = dal ?? new PetDAL();
         }
         public void Create(Pet p)
         {
             if (p.CustomerId <= 0)
-                throw new ValidationException("Please Enter Valid Customer ID for this Pet.");
+                throw new ValidationException("Customer ID is required.");
 
             if (string.IsNullOrWhiteSpace(p.PetName))
                 throw new ValidationException("Pet name is required.");
 
             try
             {
-                _petdal.Insert(p);
+                _pdal.Insert(p);
             }
             catch (DataAccessException ex)
             {
@@ -39,7 +39,7 @@ namespace PetGrooming.BLL
 
             try
             {
-                _petdal.Update(p);
+                _pdal.Update(p);
             }
             catch (DataAccessException ex)
             {
@@ -52,7 +52,7 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Pet ID.");
             try
             {
-                _petdal.Delete(petId);
+                _pdal.Delete(petId);
             }
             catch (DataAccessException ex)
             {
@@ -63,7 +63,7 @@ namespace PetGrooming.BLL
         {
             try
             {
-                return _petdal.GetAll();
+                return _pdal.GetAll();
             }
             catch (DataAccessException ex)
             {
@@ -76,7 +76,7 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Pet ID.");
             try
             {
-                return _petdal.GetById(petId);
+                return _pdal.GetById(petId);
             }
             catch (DataAccessException ex)
             {
@@ -89,7 +89,7 @@ namespace PetGrooming.BLL
                 throw new ValidationException("Invalid Customer ID.");
             try
             {
-                return _petdal.GetByCustomerId(customerId);
+                return _pdal.GetByCustomerId(customerId);
             }
             catch (DataAccessException ex)
             {
@@ -98,14 +98,17 @@ namespace PetGrooming.BLL
         }
         public List<Pet> SearchByPetName(string petName)
         {
-           var petList = GetAll();
-            return petList.Where(p => p.PetName.Contains(petName ?? "", StringComparison.OrdinalIgnoreCase)).ToList();
+           return GetAll()
+                .Where(p => p.PetName
+                .Contains(petName ?? string.Empty, StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
 
         public List<Pet> SortByPetName()
         {
-            var petList = GetAll();
-            return petList.OrderBy(p => p.PetName).ToList();
+            var copy = new List<Pet>(GetAll());
+            copy.Sort((p1, p2) => string.Compare(p1.PetName, p2.PetName, StringComparison.OrdinalIgnoreCase));
+            return copy;
         }
     }
 }

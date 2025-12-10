@@ -19,15 +19,23 @@ namespace PetGrooming.DAL
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-                INSERT INTO Appointments (CustomerId, PetId, AppointmentDate, GroomerName, Price, Service)
-                VALUES (@cid, @pid, @appdate, @groomer, @price, @service);
+                INSERT INTO Appointments (CustomerId, PetId, ServiceId, AppointmentDate, GroomerName, Price)
+                VALUES (@cid, @pid, @sid, @appdate, @groomer, @price);
                 ";
                 cmd.Parameters.AddWithValue("@cid", a.CustomerId);
                 cmd.Parameters.AddWithValue("@pid", a.PetId);
+                if (a.ServiceId > 0)
+                {
+                    cmd.Parameters.AddWithValue("@sid", a.ServiceId);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@sid", DBNull.Value);
+                }
                 cmd.Parameters.AddWithValue("@appdate", a.AppointmentDate.ToString("s")); // Make it Sortable
                 cmd.Parameters.AddWithValue("@groomer", a.GroomerName);
                 cmd.Parameters.AddWithValue("@price", a.Price);
-                cmd.Parameters.AddWithValue("@service", a.Service);
+
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -48,18 +56,25 @@ namespace PetGrooming.DAL
                 UPDATE Appointments
                 SET CustomerId = @cid,
                     PetId = @pid,
+                    ServiceId = @sid,
                     AppointmentDate = @appdate,
                     GroomerName = @groomer,
-                    Price = @price,
-                    Service = @service
+                    Price = @price
                 WHERE AppointmentId = @aid;
                 ";
                 cmd.Parameters.AddWithValue("@cid", a.CustomerId);
                 cmd.Parameters.AddWithValue("@pid", a.PetId);
+                if (a.ServiceId > 0)
+                {
+                    cmd.Parameters.AddWithValue("@sid", a.ServiceId);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@sid", DBNull.Value);
+                }
                 cmd.Parameters.AddWithValue("@appdate", a.AppointmentDate);
                 cmd.Parameters.AddWithValue("@groomer", a.GroomerName);
                 cmd.Parameters.AddWithValue("@price", a.Price);
-                cmd.Parameters.AddWithValue("@service", a.Service);
                 cmd.Parameters.AddWithValue("@aid", a.AppointmentId);
                 cmd.ExecuteNonQuery();
             }
@@ -107,16 +122,16 @@ namespace PetGrooming.DAL
 
                 while (reader.Read())
                 {
-                    var date = reader.IsDBNull(3) ? DateTime.MinValue : DateTime.Parse(reader.GetString(3));
+                    var date = reader.IsDBNull(4) ? DateTime.MinValue : DateTime.Parse(reader.GetString(4));
                     appList.Add(new Appointment
                     {
                         AppointmentId = reader.GetInt32(0),
                         CustomerId = reader.GetInt32(1),
                         PetId = reader.GetInt32(2),
+                        ServiceId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
                         AppointmentDate = date,
-                        GroomerName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                        Price = reader.IsDBNull(5) ? 0m : reader.GetDecimal(5),
-                        Service = reader.IsDBNull(6) ? string.Empty : reader.GetString(6)
+                        GroomerName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
+                        Price = reader.IsDBNull(6) ? 0m : reader.GetDecimal(6)
                     });
                     
                 }
@@ -145,16 +160,16 @@ namespace PetGrooming.DAL
                 using var reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
-                    var date = reader.IsDBNull(3) ? DateTime.MinValue : DateTime.Parse(reader.GetString(3));
+                    var date = reader.IsDBNull(4) ? DateTime.MinValue : DateTime.Parse(reader.GetString(4));
                     return new Appointment
                     {
                         AppointmentId = reader.GetInt32(0),
                         CustomerId = reader.GetInt32(1),
                         PetId = reader.GetInt32(2),
+                        ServiceId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
                         AppointmentDate = date,
-                        GroomerName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                        Price = reader.IsDBNull(5) ? 0m : reader.GetDecimal(5),
-                        Service = reader.IsDBNull(6) ? string.Empty : reader.GetString(6)
+                        GroomerName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
+                        Price = reader.IsDBNull(6) ? 0m : reader.GetDecimal(6)
                     };
                 }
                 return null;

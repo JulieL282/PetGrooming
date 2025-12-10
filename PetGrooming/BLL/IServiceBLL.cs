@@ -14,5 +14,6 @@ namespace PetGrooming.BLL
         void Delete(int serviceId);
         List<Service> GetAll();
         Service? GetById(int serviceId);
+        Service? GetByName(string serviceName);
     }
 }
