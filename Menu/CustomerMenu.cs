@@ -53,7 +53,7 @@ namespace PetGrooming.Menu
                             Environment.Exit(0);
                             break;
                         default:
-                            Console.WriteLine("Invalid option. Please press any key to return.");
+                            Console.WriteLine("Invalid option. Please press any key to return.\n");
                             Console.ReadKey(true);
                             break;
                     }
@@ -74,7 +74,7 @@ namespace PetGrooming.Menu
         private void Add()
         {
             Console.Clear();
-            Console.WriteLine("=== Add New Customer ===");
+            Console.WriteLine("=== Add New Customer [Press 'x' to cancel] ===");
             var customer = new Customer();
 
             // name loop
@@ -82,6 +82,8 @@ namespace PetGrooming.Menu
             {
                 Console.Write("Owner Name: ");
                 var name = Console.ReadLine()?.Trim() ?? "";
+                if (string.Equals(name, "x", StringComparison.OrdinalIgnoreCase)) return;
+
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     customer.OwnerName = name;
@@ -97,14 +99,14 @@ namespace PetGrooming.Menu
             while (true)
             {
                 Console.Write("Email: ");
-                string email = Console.ReadLine() ?? string.Empty;
-                customer.Email = email;
+                var email = Console.ReadLine() ?? string.Empty;
+                if (string.Equals(email, "x", StringComparison.OrdinalIgnoreCase)) return;
 
+                customer.Email = email;
                 try
                 {
-                    // Test email validation in BLL
                     _cbll.Validate(customer);
-                    break; // exit if validated
+                    break; // validated
                 }
                 catch (ValidationException ex)
                 {
@@ -116,7 +118,7 @@ namespace PetGrooming.Menu
             try
             {
                 _cbll.Create(customer);
-                Console.WriteLine($"Customer {customer.OwnerName} added successfully! Press any key to return.");
+                Console.WriteLine($"Customer {customer.OwnerName} added successfully! Press any key to return.\n");
             }
             catch (ValidationException ex)
             {
@@ -148,19 +150,28 @@ namespace PetGrooming.Menu
                 }
             }
 
-            Console.WriteLine("Press any key to return.");
+            Console.WriteLine("Press any key to return.\n");
             Console.ReadKey(true);
         }
         private void Update()
         {
             Console.Clear();
-            Console.WriteLine($"=== Update Customer ===");
-            Console.Write("Enter Customer ID to update: ");
-            if (!int.TryParse(Console.ReadLine(), out int customerId))
+            Console.WriteLine($"=== Update Customer [Press 'x' to cancel] ===");
+
+            int customerId;
+            while (true)
             {
-                Console.WriteLine("Invalid Customer ID. Press any key to return.");
-                Console.ReadKey(true);
-                return;
+                Console.Write("Enter Customer ID to update: ");
+                var raw = Console.ReadLine() ?? "";
+                if (string.Equals(raw, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (!int.TryParse(raw, out customerId))
+                {
+                    Console.WriteLine("Invalid Customer ID. Press any key to return.\n");
+                    Console.ReadKey(true);
+                    continue;
+                }
+                break;
             }
 
             Customer? existing;
@@ -170,14 +181,14 @@ namespace PetGrooming.Menu
             }
             catch (ValidationException)
             {
-                Console.WriteLine("Invalid customer ID. Press any key to return.");
+                Console.WriteLine("Invalid customer ID. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
 
             if (existing == null)
             {
-                Console.WriteLine("Customer not found. Press any key to return.");
+                Console.WriteLine("Customer not found. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
@@ -206,7 +217,7 @@ namespace PetGrooming.Menu
                 Console.WriteLine($"Error: {ex.Message}");
             }
 
-            Console.WriteLine("Press any key to return.");
+            Console.WriteLine("Press any key to return.\n");
             Console.ReadKey(true);
         }
         private void Delete()
@@ -216,7 +227,7 @@ namespace PetGrooming.Menu
             Console.Write("Enter Customer ID to delete: ");
             if (!int.TryParse(Console.ReadLine(), out int customerId))
             {
-                Console.WriteLine("Invalid Customer ID. Press any key to return.");
+                Console.WriteLine("Invalid Customer ID. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
@@ -231,28 +242,40 @@ namespace PetGrooming.Menu
                 Console.WriteLine($"Error: {ex.Message}");
             }
 
-            Console.WriteLine("Press any key to return.");
+            Console.WriteLine("Press any key to return.\n");
             Console.ReadKey(true);
         }
+
+        // Pet management - nested menu
         private void ManagePets()
         {
             Console.Clear();
-            Console.WriteLine("=== Pet Management ===");
-            Console.Write("Enter Customer ID to manage pets: ");
+            Console.WriteLine("=== Pet Management [Press 'x' to cancel] ===");
 
-            if (!int.TryParse(Console.ReadLine(), out int customerId))
+            int customerId;
+            while (true)
             {
-                Console.WriteLine("Invalid Customer ID. Press any key to return.");
-                Console.ReadKey(true);
-                return;
+                Console.Write("Enter Customer ID to manage pets: ");
+                var raw = Console.ReadLine() ?? "";
+                if (string.Equals(raw, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (!int.TryParse(raw, out customerId))
+                {
+                    Console.WriteLine("Invalid Customer ID. Press any key to return.\n");
+                    Console.ReadKey(true);
+                    continue;
+                }
+                break;
             }
+
             var cust = _cbll.GetById(customerId);
             if (cust == null)
             {
-                Console.WriteLine("Customer not found. Press any key to return.");
+                Console.WriteLine("Customer not found. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
+
             while (true)
             {
                 Console.Clear();
@@ -291,7 +314,7 @@ namespace PetGrooming.Menu
                             Environment.Exit(0);
                             break;
                         default:
-                            Console.WriteLine("Invalid option. Please press any key to return.");
+                            Console.WriteLine("Invalid option. Please press any key to return.\n");
                             Console.ReadKey(true);
                             break;
                     }
@@ -307,23 +330,46 @@ namespace PetGrooming.Menu
         private void AddPet(int customerId)
         {
             Console.Clear();
-            Console.WriteLine("=== Add New Pet ===");
+            Console.WriteLine("=== Add New Pet [Press 'x' to cancel] ===");
 
             var pet = new Pet { CustomerId = customerId };
 
-            Console.Write("Pet Name: ");
-            pet.PetName = Console.ReadLine() ?? string.Empty;
+            while (true)
+            {
+                Console.Write("Pet Name: ");
+                var name = Console.ReadLine() ?? string.Empty;
+                if (string.Equals(name, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    pet.PetName = name;
+                    break;
+                }
+                Console.WriteLine("Pet name is required.\n");
+            }
 
             Console.Write("Breed: ");
             pet.Breed = Console.ReadLine() ?? string.Empty;
 
-            Console.Write("Age (Years): ");
-            int.TryParse(Console.ReadLine(), out int age);
-            pet.Age = age;
+            while (true)
+            {
+                Console.Write("Age (Years): ");
+                var raw = Console.ReadLine() ?? "";
+                if (string.Equals(raw, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (!int.TryParse(raw, out int age) || age < 0)
+                {
+                    Console.WriteLine("Invalid age. Press any key to return.\n");
+                    Console.ReadKey(true);
+                    continue;
+                }
+                pet.Age = age;
+                break;
+            }
 
             _pbll.Create(pet);
 
-            Console.WriteLine($"Pet {pet.PetName} added Successfully! Press any key to return.");
+            Console.WriteLine($"Pet {pet.PetName} added Successfully! Press any key to return.\n");
             Console.ReadKey(true);
         }
 
@@ -341,52 +387,63 @@ namespace PetGrooming.Menu
                     Console.WriteLine($"ID: {p.PetId}, Name: {p.PetName}, Breed: {p.Breed}, Age: {p.Age}\n")
                 );
 
-            Console.WriteLine("Press any key to return.");
+            Console.WriteLine("Press any key to return.\n");
             Console.ReadKey(true);
         }
 
         private void UpdatePet(int customerId)
         {
             Console.Clear();
-            Console.WriteLine($"=== Update Pet for {_cbll.GetById(customerId)?.OwnerName} ===");
+            Console.WriteLine($"=== Update Pet for {_cbll.GetById(customerId)?.OwnerName} [Press 'x' to cancel] ===");
 
-            Console.Write("Enter Pet ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int petId))
+            int petId;
+            while (true)
             {
-                Console.WriteLine("Invalid ID. Press any key to return.");
-                Console.ReadKey(true);
-                return;
+                Console.Write("Enter Pet ID: ");
+                var raw = Console.ReadLine() ?? "";
+                if (string.Equals(raw, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (!int.TryParse(raw, out petId))
+                {
+                    Console.WriteLine("Invalid ID. Press any key to return.\n");
+                    Console.ReadKey(true);
+                    continue;
+                }
+                break;
             }
 
             var pet = _pbll.GetById(petId);
-
             if (pet == null || pet.CustomerId != customerId)
             {
-                Console.WriteLine("Pet not found for this customer. Press any key to return.");
+                Console.WriteLine("Pet not found for this customer. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
-
 
             Console.WriteLine($"\nEditing Pet's age:");
             Console.WriteLine($"Name : {pet.PetName}");
             Console.WriteLine($"Breed: {pet.Breed}");
             Console.WriteLine($"Current Age (Years): {pet.Age}\n");
 
-            Console.Write("New Age in years: ");
-            if (int.TryParse(Console.ReadLine(), out int newAge) && newAge >= 0)
-                pet.Age = newAge;
-            else
+            while (true)
             {
-                Console.WriteLine("Invalid age. Press any key to return.");
+                Console.Write("New Age in years: ");
+                var raw = Console.ReadLine() ?? "";
+                if (string.Equals(raw, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (int.TryParse(raw, out int newAge) && newAge >= 0)
+                {
+                    pet.Age = newAge;
+                    break;
+                }
+                Console.WriteLine("Invalid age. Press any key to return.\n");
                 Console.ReadKey(true);
-                return;
             }
 
             try
             {
                 _pbll.Update(pet);
-                Console.WriteLine($"{pet.PetName}'s age updated successfully! Press any key to return.");
+                Console.WriteLine($"{pet.PetName}'s age updated successfully! Press any key to return.\n");
             }
             catch (ValidationException vex)
             {
@@ -408,7 +465,7 @@ namespace PetGrooming.Menu
             Console.Write("Enter Pet ID: ");
             if (!int.TryParse(Console.ReadLine(), out int petId))
             {
-                Console.WriteLine("Invalid ID. Press any key to return.");
+                Console.WriteLine("Invalid ID. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
@@ -417,7 +474,7 @@ namespace PetGrooming.Menu
 
             if (pet == null || pet.CustomerId != customerId)
             {
-                Console.WriteLine("Pet not found for this customer. Press any key to return.");
+                Console.WriteLine("Pet not found for this customer. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
@@ -426,7 +483,7 @@ namespace PetGrooming.Menu
             try
             {
                 _pbll.Delete(petId);
-                Console.WriteLine($"Pet {pet.PetName} deleted successfully! Press any key to return.");
+                Console.WriteLine($"Pet {pet.PetName} deleted successfully! Press any key to return.\n");
             }
             catch (ValidationException vex)
             {

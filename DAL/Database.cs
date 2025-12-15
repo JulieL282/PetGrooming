@@ -75,8 +75,8 @@ namespace PetGrooming.DAL
                     GroomerName TEXT,
                     Price REAL,
                     FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId),
-                    FOREIGN KEY (PetId) REFERENCES Pets(PetId)
-                    FoREIGN KEY (ServiceId) REFERENCES Services(ServiceId)
+                    FOREIGN KEY (PetId) REFERENCES Pets(PetId),
+                    FOREIGN KEY (ServiceId) REFERENCES Services(ServiceId)
                 );";
                 cmd.ExecuteNonQuery();
 
