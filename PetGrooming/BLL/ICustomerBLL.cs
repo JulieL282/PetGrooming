@@ -9,6 +9,7 @@ namespace PetGrooming.BLL
 {
     public interface ICustomerBLL
     {
+        void Validate(Customer c);
         void Create(Customer c);
         void Update(Customer c);
         void Delete(int customerId);

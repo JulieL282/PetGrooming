@@ -24,16 +24,9 @@ namespace PetGrooming.DAL
                 ";
                 cmd.Parameters.AddWithValue("@cid", a.CustomerId);
                 cmd.Parameters.AddWithValue("@pid", a.PetId);
-                if (a.ServiceId > 0)
-                {
-                    cmd.Parameters.AddWithValue("@sid", a.ServiceId);
-                }
-                else
-                {
-                    cmd.Parameters.AddWithValue("@sid", DBNull.Value);
-                }
+                cmd.Parameters.AddWithValue("@sid", a.ServiceId);
                 cmd.Parameters.AddWithValue("@appdate", a.AppointmentDate.ToString("s")); // Make it Sortable
-                cmd.Parameters.AddWithValue("@groomer", a.GroomerName);
+                cmd.Parameters.AddWithValue("@groomer", string.IsNullOrWhiteSpace(a.GroomerName) ? DBNull.Value : (object)a.GroomerName);
                 cmd.Parameters.AddWithValue("@price", a.Price);
 
                 cmd.ExecuteNonQuery();
@@ -64,16 +57,9 @@ namespace PetGrooming.DAL
                 ";
                 cmd.Parameters.AddWithValue("@cid", a.CustomerId);
                 cmd.Parameters.AddWithValue("@pid", a.PetId);
-                if (a.ServiceId > 0)
-                {
-                    cmd.Parameters.AddWithValue("@sid", a.ServiceId);
-                }
-                else
-                {
-                    cmd.Parameters.AddWithValue("@sid", DBNull.Value);
-                }
-                cmd.Parameters.AddWithValue("@appdate", a.AppointmentDate);
-                cmd.Parameters.AddWithValue("@groomer", a.GroomerName);
+                cmd.Parameters.AddWithValue("@sid", a.ServiceId);
+                cmd.Parameters.AddWithValue("@appdate", a.AppointmentDate.ToString("s"));
+                cmd.Parameters.AddWithValue("@groomer", string.IsNullOrWhiteSpace(a.GroomerName) ? DBNull.Value : (object)a.GroomerName);
                 cmd.Parameters.AddWithValue("@price", a.Price);
                 cmd.Parameters.AddWithValue("@aid", a.AppointmentId);
                 cmd.ExecuteNonQuery();
@@ -133,7 +119,7 @@ namespace PetGrooming.DAL
                         GroomerName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
                         Price = reader.IsDBNull(6) ? 0m : reader.GetDecimal(6)
                     });
-                    
+
                 }
                 return appList;
             }

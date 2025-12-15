@@ -14,7 +14,7 @@ namespace PetGrooming.BLL
         void Delete(int appointmentId);
         List<Appointment> GetAllWithNames();
         Appointment? GetById(int appointmentId);
-       
+
 
         // Sorting
         List<Appointment> SortByDate();

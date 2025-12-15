@@ -11,7 +11,7 @@ namespace PetGrooming.Utils
     {
 
         // Bubble Sort by Date (ascending)
-        public static List<Appointment> BubbleSortByDate(List<Appointment> appList)
+        public static List<Appointment> SortByDate(List<Appointment> appList)
         {
             // Creating copy for sorting so original list is not modified
             var arr = new List<Appointment>(appList);
@@ -20,38 +20,82 @@ namespace PetGrooming.Utils
 
             for (int i = 0; i < n - 1; i++)
             {
+                bool swapped = false;
                 for (int j = 0; j < n - i - 1; j++)
                 {
                     if (arr[j].AppointmentDate > arr[j + 1].AppointmentDate)
                     {
                         // Swap
                         (arr[j], arr[j + 1]) = (arr[j + 1], arr[j]);
+                        swapped = true;
                     }
                 }
+                if (!swapped)
+                    break; // List is sorted
             }
             return arr;
         }
 
-        public static List<Appointment> SortbyOwnerName(List<Appointment> appList)
+        // Selection sort
+        public static List<Appointment> SortByOwnerName(List<Appointment> appList)
         {
             var arr = new List<Appointment>(appList);
-            arr.Sort((a, b) => string.Compare(a.OwnerName, b.OwnerName, StringComparison.OrdinalIgnoreCase));
+            int n = arr.Count;
+            for (int i = 0; i < n - 1; i++)
+            {
+                int minIdx = i;
+                for (int j = i + 1; j < n; j++)
+                {
+                    if (string.Compare(arr[j].OwnerName, arr[minIdx].OwnerName, StringComparison.OrdinalIgnoreCase) < 0)
+                    {
+                        minIdx = j;
+                    }
+                }
+                if (minIdx != i)
+                {
+                    (arr[i], arr[minIdx]) = (arr[minIdx], arr[i]);
+                }
+
+            }
             return arr;
         }
-        public static List<Appointment> SortbyPetName(List<Appointment> appList)
+        // insertion sort
+        public static List<Appointment> SortByPetName(List<Appointment> appList)
         {
             var arr = new List<Appointment>(appList);
-            arr.Sort((a, b) => string.Compare(a.PetName, b.PetName, StringComparison.OrdinalIgnoreCase));
+            int n = arr.Count;
+            for (int i = 1; i < n; i++)
+            {
+                var key = arr[i];
+                int j = i - 1;
+                while (j >= 0 && string.Compare(arr[j].PetName, key.PetName, StringComparison.OrdinalIgnoreCase) > 0)
+                {
+                    arr[j + 1] = arr[j];
+                    j--;
+                }
+                arr[j + 1] = key;
+            }
             return arr;
         }
-        public static List<Appointment> SortbyAppointmentId(List<Appointment> appList)
+        // Insertion sort
+        public static List<Appointment> SortByAppointmentId(List<Appointment> appList)
         {
             var arr = new List<Appointment>(appList);
-            arr.Sort((a, b) => a.AppointmentId.CompareTo(b.AppointmentId));
+            int n = arr.Count;
+            for (int i = 1; i < n; i++)
+            {
+                var key = arr[i];
+                int j = i - 1;
+                while (j >= 0 && arr[j].AppointmentId > key.AppointmentId)
+                {
+                    arr[j + 1] = arr[j];
+                    j--;
+                }
+                arr[j + 1] = key;
+            }
             return arr;
         }
+
 
     }
 }
-
-

@@ -28,13 +28,12 @@ namespace PetGrooming.Menu
                 Console.Clear();
                 Console.WriteLine("=== Pet Grooming Management System ===");
                 Console.WriteLine("1. Manage Customers");
-                Console.WriteLine("2. Manage Pets");
-                Console.WriteLine("3. Manage Services");
-                Console.WriteLine("4. Manage Appointments");
-                Console.WriteLine("5. Sort Appointments");
-                Console.WriteLine("6. Search Appointments");
+                Console.WriteLine("2. Manage Services");
+                Console.WriteLine("3. Manage Appointments");
+                Console.WriteLine("4. Sort Appointments");
+                Console.WriteLine("5. Search Appointments");
                 Console.WriteLine("0. Exit");
-                Console.Write("Select an option: ");
+                Console.Write("\nSelect an option: ");
                 string? input = Console.ReadLine();
                 switch (input)
                 {
@@ -42,22 +41,19 @@ namespace PetGrooming.Menu
                         new CustomerMenu(_cbll, _pbll).Manage();
                         break;
                     case "2":
-                        new PetMenu(_pbll, _cbll).Manage();
-                        break;
-                    case "3":
                         new ServiceMenu(_sbll).Manage();
                         break;
-                    case "4":
-                        new AppointmentMenu(_abll, _cbll, _pbll, _sbll).Manage();
+                    case "3":
+                        new AppointmentMenu(_abll, _sbll, _cbll, _pbll).Manage();
                         break;
-                    case "5":
+                    case "4":
                         SortingMenu.Show(_abll); // static
                         break;
-                    case "6":
+                    case "5":
                         SearchingMenu.Show(_abll); // static
                         break;
                     case "0": return;
-                        default:
+                    default:
                         Console.WriteLine("Invalid option. Please press any key to try again.");
                         Console.ReadKey(true);
                         break;

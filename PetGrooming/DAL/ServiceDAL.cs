@@ -47,7 +47,7 @@ namespace PetGrooming.DAL
                 WHERE ServiceId = @sid;
                 ";
                 cmd.Parameters.AddWithValue("@sname", s.ServiceName);
-                cmd.Parameters.AddWithValue("@BasePrice", s.BasePrice);
+                cmd.Parameters.AddWithValue("@price", s.BasePrice);
                 cmd.Parameters.AddWithValue("@sid", s.ServiceId);
                 cmd.ExecuteNonQuery();
             }
@@ -79,7 +79,7 @@ namespace PetGrooming.DAL
 
         public List<Service> GetAll()
         {
-            
+
             try
             {
                 var sList = new List<Service>();

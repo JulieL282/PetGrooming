@@ -1,10 +1,11 @@
-﻿using System;
+﻿using PetGrooming.DAL;
+using PetGrooming.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using PetGrooming.Models;
-using PetGrooming.DAL;
 
 namespace PetGrooming.BLL
 {
@@ -16,26 +17,47 @@ namespace PetGrooming.BLL
         {
             _cdal = dal ?? new CustomerDAL();
         }
-        public void Create(Customer c)
+        // Email Regex check
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+
+            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        }
+
+        public void Validate(Customer c)
         {
             if (string.IsNullOrWhiteSpace(c.OwnerName))
-          
                 throw new ValidationException("Owner name is required.");
 
-                try
-                {
+            if (string.IsNullOrWhiteSpace(c.Email))
+                throw new ValidationException("Email is required.");
+
+            if (!IsValidEmail(c.Email))
+                throw new ValidationException("Invalid email format.");
+        }
+
+        public void Create(Customer c)
+        {
+            Validate(c);
+
+            try
+            {
                 _cdal.Insert(c);
-                }
-                catch (DataAccessException ex)
-                {
-                    throw new BusinessException("Error creating customer info: ", ex);
-                }
-            
+            }
+            catch (DataAccessException ex)
+            {
+                throw new BusinessException("Error creating customer info: ", ex);
+            }
+
         }
         public void Update(Customer c)
         {
             if (c.CustomerId <= 0)
                 throw new ValidationException("Invalid Customer ID.");
+
+            Validate(c);
+
             try
             {
                 _cdal.Update(c);
@@ -49,6 +71,7 @@ namespace PetGrooming.BLL
         {
             if (customerId <= 0)
                 throw new ValidationException("Invalid Customer ID.");
+
             try
             {
                 _cdal.Delete(customerId);

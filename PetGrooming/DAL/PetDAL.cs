@@ -20,13 +20,13 @@ namespace PetGrooming.DAL
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
                 INSERT INTO Pets (CustomerId, PetName, Breed, Age)
-                VALUES (@cid@petname, @breed, @age);
+                VALUES (@cid, @petname, @breed, @age);
                 ";
                 cmd.Parameters.AddWithValue("@cid", p.CustomerId);
                 cmd.Parameters.AddWithValue("@petname", p.PetName);
                 cmd.Parameters.AddWithValue("@breed", p.Breed);
                 cmd.Parameters.AddWithValue("@age", p.Age);
-                
+
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -47,8 +47,7 @@ namespace PetGrooming.DAL
                 SET CustomerId = @cid,
                     PetName = @petname,
                     Breed = @breed,
-                    Age = @age,
-                    CustomerId = @cid
+                    Age = @age
                 WHERE PetId = @pid;
                 ";
                 cmd.Parameters.AddWithValue("@cid", p.CustomerId);
@@ -104,7 +103,7 @@ namespace PetGrooming.DAL
                         CustomerId = reader.GetInt32(1),
                         PetName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                         Breed = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
-                        Age = reader.IsDBNull(4) ? 0 : reader.GetInt32(4) 
+                        Age = reader.IsDBNull(4) ? 0 : reader.GetInt32(4)
                     });
                 }
                 return petList;

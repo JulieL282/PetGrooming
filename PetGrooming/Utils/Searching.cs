@@ -9,11 +9,14 @@ namespace PetGrooming.Utils
 {
     public static class Searching
     {
-        public static Appointment? BinarySearchByAppointmentId(List<Appointment> sorted, int targetId)
+        // Binary Search by AppointmentId (requires sorted list)
+        public static Appointment? SearchByAppointmentId(List<Appointment> sorted, int targetId)
         {
+            if (sorted == null)
+                throw new ArgumentNullException(nameof(sorted));
             int left = 0;
             int right = sorted.Count - 1;
-            
+
             while (left <= right)
             {
                 int mid = (left + right) / 2;
@@ -37,18 +40,24 @@ namespace PetGrooming.Utils
         //Linear Searches
         public static List<Appointment> SearchByCustomerId(List<Appointment> appList, int customerId)
         {
+            if (appList == null)
+                throw new ArgumentNullException(nameof(appList));
             return appList.Where(a => a.CustomerId == customerId).ToList();
         }
 
         public static List<Appointment> SearchByPetId(List<Appointment> appList, int petId)
         {
-           
+
+            if (appList == null)
+                throw new ArgumentNullException(nameof(appList));
             return appList.Where(a => a.PetId == petId).ToList();
         }
 
         public static List<Appointment> SearchByDate(List<Appointment> appList, DateTime date)
         {
-            
+
+            if (appList == null)
+                throw new ArgumentNullException(nameof(appList));
             return appList.Where(a => a.AppointmentDate.Date == date.Date).ToList();
         }
     }

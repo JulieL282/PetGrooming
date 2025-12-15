@@ -67,7 +67,7 @@ namespace PetGrooming.BLL
                 throw new BusinessException("Error creating appointment: ", ex);
             }
         }
-        
+
         public void Update(Appointment a)
         {
             if (a.AppointmentId <= 0)
@@ -104,11 +104,16 @@ namespace PetGrooming.BLL
                 var pets = _pbll.GetAll();
                 var services = _sbll.GetAll();
 
+                // Dictionary convertion for faster lookup
+                var custDict = customers.ToDictionary(c => c.CustomerId, c => c.OwnerName);
+                var petDict = pets.ToDictionary(p => p.PetId, p => p.PetName);
+                var servDict = services.ToDictionary(s => s.ServiceId, s => s.ServiceName);
+
                 foreach (var a in appointments)
                 {
-                    a.OwnerName = customers.FirstOrDefault(c => c.CustomerId == a.CustomerId)?.OwnerName ?? string.Empty;
-                    a.PetName = pets.FirstOrDefault(p => p.PetId == a.PetId)?.PetName ?? string.Empty;
-                    a.ServiceName = services.FirstOrDefault(s => s.ServiceId == a.ServiceId)?.ServiceName ?? string.Empty;
+                    a.OwnerName = custDict.TryGetValue(a.CustomerId, out var ownerName) ? ownerName : string.Empty;
+                    a.PetName = petDict.TryGetValue(a.PetId, out var petName) ? petName : string.Empty;
+                    a.ServiceName = servDict.TryGetValue(a.ServiceId, out var serviceName) ? serviceName : string.Empty;
                 }
                 return appointments;
             }
@@ -130,17 +135,17 @@ namespace PetGrooming.BLL
         }
 
         // Sorting
-        public List<Appointment> SortByDate() 
-            => Sorting.BubbleSortByDate(GetAllWithNames());
+        public List<Appointment> SortByDate()
+            => Sorting.SortByDate(GetAllWithNames());
 
-        public List<Appointment> SortByOwnerName() 
-            => Sorting.SortbyOwnerName(GetAllWithNames());
+        public List<Appointment> SortByOwnerName()
+            => Sorting.SortByOwnerName(GetAllWithNames());
 
-        public List<Appointment> SortByPetName() 
-            => Sorting.SortbyPetName(GetAllWithNames());
+        public List<Appointment> SortByPetName()
+            => Sorting.SortByPetName(GetAllWithNames());
 
-        public List<Appointment> SortByAppointmentId() 
-            => Sorting.SortbyAppointmentId(GetAllWithNames());
+        public List<Appointment> SortByAppointmentId()
+            => Sorting.SortByAppointmentId(GetAllWithNames());
 
 
 
@@ -148,8 +153,8 @@ namespace PetGrooming.BLL
         public Appointment? SearchByAppointmentId(int appointmentId)
         {
             var appList = GetAllWithNames();
-            var sorted = Sorting.SortbyAppointmentId(appList);
-            return Searching.BinarySearchByAppointmentId(sorted, appointmentId);
+            var sorted = Sorting.SortByAppointmentId(appList);
+            return Searching.SearchByAppointmentId(sorted, appointmentId);
         }
 
         public List<Appointment> SearchByCustomerId(int customerId)

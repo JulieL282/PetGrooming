@@ -12,6 +12,8 @@ namespace PetGrooming.Models
         public string OwnerName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+
+        //Pet list can be filled by BLL
         public List<Pet> Pets { get; set; } = new List<Pet>();
     }
 }

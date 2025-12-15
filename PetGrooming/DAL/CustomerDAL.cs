@@ -21,11 +21,11 @@ namespace PetGrooming.DAL
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
                 INSERT INTO Customers (OwnerName, PhoneNumber, Email)
-                VALUES (@ownername, @phoneno, @email);
+                VALUES (@owner, @phone, @email);
                 ";
-                cmd.Parameters.AddWithValue("@ownername", c.OwnerName);
-                cmd.Parameters.AddWithValue("@phoneno", c.PhoneNumber);
-                cmd.Parameters.AddWithValue("@email", c.Email);
+                cmd.Parameters.AddWithValue("@owner", c.OwnerName);
+                cmd.Parameters.AddWithValue("@phone", string.IsNullOrWhiteSpace(c.PhoneNumber) ? DBNull.Value : (object)c.PhoneNumber);
+                cmd.Parameters.AddWithValue("@email", string.IsNullOrWhiteSpace(c.Email) ? DBNull.Value : (object)c.Email);
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -43,14 +43,14 @@ namespace PetGrooming.DAL
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
                 UPDATE Customers
-                SET OwnerName = @ownername,
-                    PhoneNumber = @phoneno,
+                SET OwnerName = @owner,
+                    PhoneNumber = @phone,
                     Email = @email
                 WHERE CustomerId = @cid;
                 ";
-                cmd.Parameters.AddWithValue("@ownername", c.OwnerName);
-                cmd.Parameters.AddWithValue("@phoneno", c.PhoneNumber);
-                cmd.Parameters.AddWithValue("@email", c.Email);
+                cmd.Parameters.AddWithValue("@owner", c.OwnerName);
+                cmd.Parameters.AddWithValue("@phone", string.IsNullOrWhiteSpace(c.PhoneNumber) ? DBNull.Value : (object)c.PhoneNumber);
+                cmd.Parameters.AddWithValue("@email", string.IsNullOrWhiteSpace(c.Email) ? DBNull.Value : (object)c.Email);
                 cmd.Parameters.AddWithValue("@cid", c.CustomerId);
                 cmd.ExecuteNonQuery();
             }
@@ -58,7 +58,7 @@ namespace PetGrooming.DAL
             {
                 throw new DataAccessException("Error updating customer info: ", ex);
             }
-            
+
         }
 
         public void Delete(int customerId)
@@ -67,16 +67,17 @@ namespace PetGrooming.DAL
             {
                 using var conn = new SqliteConnection(_conn);
                 conn.Open();
+                using var trans = conn.BeginTransaction();
                 using var cmd = conn.CreateCommand();
 
 
                 // Delete Appointments for customerid - Foreign Key
-                cmd.CommandText = @"
-                DELETE FROM Appointments
-                WHERE CustomerId = @cid;
-                ";
-                cmd.Parameters.AddWithValue("@cid", customerId);
-                cmd.ExecuteNonQuery();
+                //cmd.CommandText = @"
+                //DELETE FROM Appointments
+                //WHERE CustomerId = @cid;
+                //";
+                //cmd.Parameters.AddWithValue("@cid", customerId);
+                //cmd.ExecuteNonQuery();
 
 
                 // Pets table
@@ -91,10 +92,12 @@ namespace PetGrooming.DAL
                 // Delete from Customer table - Primary Key
                 cmd.CommandText = @"
                 DELETE FROM Customers
-                WHERE CustomerId = @cid;
+                WHERE CustomerId = @cid2;
                 ";
-                cmd.Parameters.AddWithValue("@cid", customerId);
+                cmd.Parameters.AddWithValue("@cid2", customerId);
                 cmd.ExecuteNonQuery();
+
+                trans.Commit();
             }
             catch (Exception ex)
             {
@@ -132,7 +135,7 @@ namespace PetGrooming.DAL
             catch (Exception ex)
             {
                 throw new DataAccessException("Error retrieving customer list: ", ex);
-            }    
+            }
         }
 
         public Customer? GetById(int customerId)
@@ -167,7 +170,7 @@ namespace PetGrooming.DAL
             {
                 throw new DataAccessException($"Error retrieving customer info by ID {customerId} : ", ex);
             }
-           
+
         }
 
     }

@@ -14,53 +14,68 @@ namespace PetGrooming.Menu
         {
             while (true)
             {
+                Console.Clear();
                 Console.WriteLine("=== Sort Appointments by ===");
                 Console.WriteLine("1. Appointment Date");
                 Console.WriteLine("2. Owner Name");
                 Console.WriteLine("3. Pet Name");
                 Console.WriteLine("4. Appointment ID");
-                Console.WriteLine("0. Back to Main Menu");
-                Console.Write("Select an option: ");
+                Console.WriteLine("9. Back to Main Menu");
+                Console.WriteLine("0. Exit");
+                Console.Write("\nPlease select an option: ");
 
                 string? input = Console.ReadLine();
 
-                List<Appointment>? aList = null;
-
-                switch (input)
+                if (input == "9") return;
+                if (input == "0")
                 {
-                    case "1":
-                        aList = abll.SortByDate();
-                        break;
-                    case "2":
-                        aList = abll.SortByOwnerName();
-                        break;
-                    case "3":
-                        aList = abll.SortByPetName();
-                        break;
-                    case "4":
-                        aList = abll.SortByAppointmentId();
-                        break;
-                    case "0":
-                        return; // Exit the menu
-                    default:
-                        Console.WriteLine("Invalid option. Please try again.");
-                        continue;
+                    Console.WriteLine("Exiting the system. Goodbye\n");
+                    Environment.Exit(0);
                 }
 
-                Print(aList);
+                List<Appointment>? aList = input switch
+
+                {
+                    "1" => abll.SortByDate(),
+                    "2" => abll.SortByOwnerName(),
+                    "3" => abll.SortByPetName(),
+                    "4" => abll.SortByAppointmentId(),
+                    _ => null,
+                };
+
+                if (aList == null)
+                {
+                    Console.WriteLine("\nInvalid option. Press any key to try again.");
+                    Console.ReadKey(true);
+                    continue;
+                }
+
+                Console.Clear();
+                Console.WriteLine("=== Sorted Appointments ===");
+                if (aList.Count == 0)
+                {
+                    Console.WriteLine("No appointments found.");
+                }
+                else
+                {
+                    foreach (var a in aList)
+                    {
+                        Console.WriteLine(
+                            $"ID:{a.AppointmentId} | " +
+                            $"Date:{a.AppointmentDate:yyyy-MM-dd HH:mm} | " +
+                            $"Owner:{a.OwnerName} | " +
+                            $"Pet:{a.PetName} | " +
+                            $"Service:{a.ServiceName} | " +
+                            $"Price:{a.Price:C}"
+                        );
+                    }
+                    Console.WriteLine("\n=== End of List ===");
+                }
+                Console.WriteLine("Press Any Key to return.");
+                Console.ReadKey(true);
             }
+
         }
-        private static void Print(List<Appointment> aList)
-        {
-            Console.Clear();
-            Console.WriteLine("=== Sorted Appointments ===");
-            foreach (var a in aList)
-            {
-                Console.WriteLine($"ID: {a.AppointmentId}, Date: {a.AppointmentDate}, Owner: {a.OwnerName}, Pet: {a.PetName}");
-            }
-            Console.WriteLine("Press Any Key to Return to Sorting Menu");
-            Console.ReadKey(true);
-            Console.Clear();
-        }
+
     }
 }

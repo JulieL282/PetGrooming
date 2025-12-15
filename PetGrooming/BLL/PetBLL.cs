@@ -37,9 +37,16 @@ namespace PetGrooming.BLL
             if (p.PetId <= 0)
                 throw new ValidationException("Invalid Pet ID.");
 
+            var existing = _pdal.GetById(p.PetId);
+            if (existing == null)
+                throw new ValidationException("Pet not found.");
+
+            // Only Age is allowed to change
+            existing.Age = p.Age;
+
             try
             {
-                _pdal.Update(p);
+                _pdal.Update(existing);
             }
             catch (DataAccessException ex)
             {
@@ -98,10 +105,10 @@ namespace PetGrooming.BLL
         }
         public List<Pet> SearchByPetName(string petName)
         {
-           return GetAll()
-                .Where(p => p.PetName
-                .Contains(petName ?? string.Empty, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            return GetAll()
+                 .Where(p => p.PetName
+                 .Contains(petName ?? string.Empty, StringComparison.OrdinalIgnoreCase))
+                 .ToList();
         }
 
         public List<Pet> SortByPetName()

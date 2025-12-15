@@ -23,7 +23,10 @@ namespace PetGrooming.Menu
             Console.WriteLine("2. View All Services");
             Console.WriteLine("3. Update Service");
             Console.WriteLine("4. Delete Service");
-            Console.WriteLine("0. Return to Main Menu");
+            Console.WriteLine("9. Return to Main Menu");
+            Console.WriteLine("0. Exit");
+            Console.Write("\nPlease select an option: ");
+
 
             var input = Console.ReadLine();
             try
@@ -34,9 +37,13 @@ namespace PetGrooming.Menu
                     case "2": ViewAll(); break;
                     case "3": Update(); break;
                     case "4": Delete(); break;
-                    case "0": return;
+                    case "9": return;
+                    case "0":
+                        Console.WriteLine("Exiting the system. Goodbye\n");
+                        Environment.Exit(0);
+                        break;
                     default:
-                        Console.WriteLine("Invalid option. Please press any key to return to the menu.");
+                        Console.WriteLine("Invalid option. Please press any key to return.\n");
                         Console.ReadKey(true);
                         break;
                 }
@@ -45,13 +52,13 @@ namespace PetGrooming.Menu
             catch (ValidationException vex)
             {
                 Console.WriteLine($"Validation Error: {vex.Message}");
-                Console.WriteLine("Press any key to return to the menu.");
+                Console.WriteLine("Press any key to return.\n");
                 Console.ReadKey(true);
             }
             catch (BusinessException bex)
             {
                 Console.WriteLine($"Business Error: {bex.Message}");
-                Console.WriteLine("Press any key to return to the menu.");
+                Console.WriteLine("Press any key to return.\n");
                 Console.ReadKey(true);
             }
         }
@@ -59,21 +66,45 @@ namespace PetGrooming.Menu
         {
             Console.Clear();
             var s = new Service();
-            Console.WriteLine("=== Add New Service ===");
+            Console.WriteLine("=== Add New Service [Press 'x' to cancel] ===");
             Console.Write("Service Name: ");
-            s.ServiceName = Console.ReadLine() ?? string.Empty;
-            Console.Write("Base Price: ");
-            if (!decimal.TryParse(Console.ReadLine(), out var price))
+
+            while (true)
             {
-                Console.WriteLine("Invalid price. Press any key to return to the menu.");
-                Console.ReadKey(true);
-                return;
+                Console.Write("Service Name: ");
+                var name = Console.ReadLine() ?? string.Empty;
+
+                if (string.Equals(name, "x", StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    s.ServiceName = name;
+                    break;
+                }
+
+                Console.WriteLine("Service name is required.\n");
             }
-            s.BasePrice = price;
-            
+
+            while (true)
+            {
+                Console.Write("Base Price: ");
+                var raw = Console.ReadLine() ?? string.Empty;
+                if (string.Equals(raw, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (!decimal.TryParse(raw, out var price))
+                {
+                    Console.WriteLine("Invalid price. Press any key to return.\n");
+                    Console.ReadKey(true);
+                    continue;
+                }
+                s.BasePrice = price;
+                break;
+            }
+
             _sbll.Create(s);
 
-            Console.WriteLine("Service added successfully! Press any key to return to the menu.");
+            Console.WriteLine("Service added successfully! Press any key to return.\n");
             Console.ReadKey(true);
         }
         public void ViewAll()
@@ -89,39 +120,69 @@ namespace PetGrooming.Menu
             {
                 Console.WriteLine($"ID: {s.ServiceId}, Name: {s.ServiceName}, Price: {s.BasePrice:C}");
             }
-            Console.WriteLine("Press any key to return to the menu.");
+            Console.WriteLine("Press any key to return.\n");
             Console.ReadKey(true);
         }
         private void Update()
         {
             Console.Clear();
-            Console.WriteLine("=== Update Service ===");
-            Console.Write("Enter Service ID to update: ");
-            if (!int.TryParse(Console.ReadLine(), out var id))
+            Console.WriteLine("=== Update Service Price [Press 'x' to cancel] ===");
+            int id;
+
+            while (true)
             {
-                Console.WriteLine("Invalid ID. Press any key to return to the menu.");
-                Console.ReadKey(true);
-                return;
+                Console.Write("Enter Service ID to update: ");
+                var raw = Console.ReadLine() ?? string.Empty;
+                if (string.Equals(raw, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (!int.TryParse(raw, out id))
+                {
+                    Console.WriteLine("Invalid ID. Press any key to return.\n");
+                    Console.ReadKey(true);
+                    continue;
+                }
+                break;
             }
+
             var s = _sbll.GetById(id);
             if (s == null)
             {
-                Console.WriteLine("Service not found. Press any key to return to the menu.");
+                Console.WriteLine("Service not found. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
 
-            Console.Write("New Base Price: ");
-            var np = Console.ReadLine();
-            if (!decimal.TryParse(Console.ReadLine(), out var price))
+            decimal newPrice;
+            while (true)
             {
-                Console.WriteLine("Invalid price. Press any key to return to the menu.");
-                Console.ReadKey(true);
-                return;
+                Console.Write($"New Price for {s.ServiceName}: ");
+                var raw = Console.ReadLine() ?? string.Empty;
+                if (string.Equals(raw, "x", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (!decimal.TryParse(raw, out newPrice) || newPrice < 0)
+                {
+                    Console.WriteLine("Invalid price. Please try again.\n");
+                    continue;
+                }
+                break;
             }
-            s.BasePrice = price;
-            _sbll.Update(s);
-            Console.WriteLine("Service updated successfully! Press any key to return to the menu.");
+
+            s.BasePrice = newPrice;
+
+            try
+            {
+                _sbll.Update(s);
+                Console.WriteLine("Service price updated successfully! Press any key to return.\n");
+            }
+            catch (ValidationException vex)
+            {
+                Console.WriteLine($"Validation Error: {vex.Message}");
+            }
+            catch (BusinessException bex)
+            {
+                Console.WriteLine($"Business Error: {bex.Message}");
+            }
+
             Console.ReadKey(true);
         }
         private void Delete()
@@ -131,12 +192,26 @@ namespace PetGrooming.Menu
             Console.Write("Enter Service ID to delete: ");
             if (!int.TryParse(Console.ReadLine(), out var id))
             {
-                Console.WriteLine("Invalid ID. Press any key to return to the menu.");
+                Console.WriteLine("Invalid ID. Press any key to return.\n");
                 Console.ReadKey(true);
                 return;
             }
-            _sbll.Delete(id);
-            Console.WriteLine("Service deleted successfully! Press any key to return to the menu.");
+            try
+            {
+                _sbll.Delete(id);
+                Console.WriteLine("Service deleted successfully! Press any key to return.\n");
+            }
+            catch (ValidationException vex)
+            {
+                Console.WriteLine($"Validation Error: {vex.Message}");
+            }
+            catch (BusinessException bex)
+            {
+                Console.WriteLine($"Business Error: {bex.Message}");
+                Console.WriteLine("This service is booked in existing appointments.");
+                Console.WriteLine("You must delete those appointments first.");
+            }
+
             Console.ReadKey(true);
         }
     }

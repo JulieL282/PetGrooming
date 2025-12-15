@@ -12,10 +12,13 @@ namespace PetGrooming.BLL
         public ExceptionsBLL(string message, Exception? inner) : base(message, inner) { }
     }
 
+    // Validation errors - users
     public class ValidationException : ExceptionsBLL
     {
         public ValidationException(string message) : base(message) { }
     }
+
+    // System errors
     public class BusinessException : ExceptionsBLL
     {
         public BusinessException(string message, Exception? inner = null) : base(message, inner) { }
