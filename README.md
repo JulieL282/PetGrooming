@@ -1,4 +1,9 @@
-PetGrooming — Lecturer Setup & Run Guide
+*** With some last minute error with Github repo - There is a nesting PetGrooming folder created inside of Petgrooming. In my local machine this directory worked to run the code.
+
+<img width="491" height="22" alt="image" src="https://github.com/user-attachments/assets/9dfae35f-5aee-4574-88dd-6d4822c364f0" />
+
+**
+PetGrooming — Lecturer Setup & Run Guide**
 
 1) File structure
 <img width="249" height="1016" alt="image" src="https://github.com/user-attachments/assets/6200a8be-6a6c-4d77-9a2c-94a806698745" />
